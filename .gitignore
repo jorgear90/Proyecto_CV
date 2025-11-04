@@ -1,0 +1,40 @@
+# Archivos binarios y compilados
+bin/
+obj/
+out/
+
+# Archivos de usuario
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Logs
+*.log
+
+# Archivos de configuración local
+appsettings.Development.json
+appsettings.Local.json
+
+# Paquetes
+*.nupkg
+*.snupkg
+packages/
+*.dll
+*.exe
+
+# Archivos temporales
+~$*
+*.tmp
+*.bak
+
+# Rider/VSCode/Resharper
+.vscode/
+.idea/
+*.DotSettings.user
+
+.vs/
+
+# Ignorar el servicio de encriptación temporalmente
+campeonatosapp.client/src/app/core/services/encryption/
