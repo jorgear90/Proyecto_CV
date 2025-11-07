@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using CurriculumVitaeApp.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,7 +15,50 @@ namespace CurriculumVitaeApp.Controllers
 
         public IActionResult Index()
         {
+            var token = Request.Cookies["jwtToken"];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                // No hay token → redirigir
+                return RedirectToAction("Login", "Usuarios");
+            }
+
+            // Validar que el token sea válido
+            /*var valido = ValidarJwtToken(token);
+            if (!valido)
+            {
+                // Token inválido → redirigir o manejar como prefieras
+                return RedirectToAction("Login", "Auth");
+            }*/
+
             return View();
+        }
+
+        [HttpPost]
+        public IActionResult Logout()
+        {
+            // Eliminar todas las cookies de sesión/auth
+            foreach (var cookie in Request.Cookies.Keys)
+            {
+                if (cookie.StartsWith(".AspNetCore.") ||
+                    cookie.Contains("Auth") ||
+                    cookie.Contains("Token") ||
+                    cookie == "jwt" ||
+                    cookie == "access_token")
+                {
+                    Response.Cookies.Delete(cookie);
+                }
+            }
+
+            // Opcional: Eliminar cookie específica si sabes su nombre exacto
+            Response.Cookies.Delete("jwt"); // o el nombre que uses para tu token
+            Response.Cookies.Delete("access_token");
+            Response.Cookies.Delete(".AspNetCore.Session");
+
+            // Limpiar la sesión
+            //HttpContext.Session.Clear();
+
+            return RedirectToAction("Index", "Home");
         }
 
         public IActionResult Privacy()

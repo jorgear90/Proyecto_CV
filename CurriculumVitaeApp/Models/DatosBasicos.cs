@@ -8,7 +8,9 @@ namespace CurriculumVitaeApp.Models
         [Key]
         public int Id { get; set; }
         public int UsuarioID { get; set; }
+        [Display(Name = "Dato")]
         public string Nombre { get; set; }
+        [Display(Name = "Valor")]
         public string Descripcion { get; set; }
 
         //Clave foranea
