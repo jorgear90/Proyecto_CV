@@ -66,8 +66,8 @@ namespace CurriculumVitaeApp.Controllers
                 Response.Cookies.Append("jwtToken", token, new CookieOptions
                 {
                     HttpOnly = true, // evita acceso desde JS
-                    Secure = true, // solo HTTPS
-                    SameSite = SameSiteMode.Strict,
+                    Secure = false, //
+                    SameSite = SameSiteMode.Lax, //Mas flexible
                     Expires = DateTime.UtcNow.AddHours(2)
                 });
 
@@ -116,7 +116,7 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         // GET: Usuarios/Create
-        public IActionResult Create()
+        public IActionResult Crear()
         {
             return View();
         }
@@ -126,7 +126,7 @@ namespace CurriculumVitaeApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Correo,Password,PasswordRepetido")] CreateUsuarioDto usuario)
+        public async Task<IActionResult> Crear([Bind("Correo,Password,PasswordRepetido")] CreateUsuarioDto usuario)
         {
             if (ModelState.IsValid)
             {
@@ -160,7 +160,7 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         // GET: Usuarios/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public async Task<IActionResult> Editar(int? id)
         {
             if (id == null)
             {
@@ -180,7 +180,7 @@ namespace CurriculumVitaeApp.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Correo,Password")] Usuario usuario)
+        public async Task<IActionResult> Editar(int id, [Bind("Id,Correo,Password")] Usuario usuario)
         {
             if (id != usuario.Id)
             {
@@ -219,19 +219,19 @@ namespace CurriculumVitaeApp.Controllers
                 {
                     UsuarioID = usuarioId,
                     Nombre = "Nombre",
-                    Descripcion = "Tu nombre"
+                    Valor = "Tu nombre"
                 },
                 new DatosBasicos
                 {
                     UsuarioID = usuarioId,
                     Nombre = "Apellido",
-                    Descripcion = "Tu apellido"
+                    Valor = "Tu apellido"
                 },
                 new DatosBasicos
                 {
                     UsuarioID = usuarioId,
                     Nombre = "Número",
-                    Descripcion = "Tu número de teléfono"
+                    Valor = "Tu número de teléfono"
                 }
             };
 

@@ -1,4 +1,4 @@
-using CurriculumVitaeApp.Data;
+﻿using CurriculumVitaeApp.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -30,7 +30,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = true;
+    options.RequireHttpsMetadata = false;
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -44,6 +44,12 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddMvc(options =>
+{
+    options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(
+        _ => "El campo es obligatorio");
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -54,7 +60,8 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.Urls.Add("http://cvappdev.cl:80");
+//app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();

@@ -11,7 +11,7 @@ namespace CurriculumVitaeApp.Models
         [Display(Name = "Dato")]
         public string Nombre { get; set; }
         [Display(Name = "Valor")]
-        public string Descripcion { get; set; }
+        public string Valor { get; set; }
 
         //Clave foranea
         [ForeignKey(nameof(UsuarioID))]

@@ -1,23 +1,35 @@
-﻿@model IEnumerable<CurriculumVitaeApp.Models.DatosBasicos>
+﻿@model IEnumerable<CurriculumVitaeApp.Models.FormacionAcademica>
 @inject CurriculumVitaeApp.Helpers.IdProtector IdProtector
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Datos Básicos</h1>
+<h1>Index</h1>
 
 <p>
-    <a asp-action="Crear">Crea un dato básico</a>
+    <a asp-action="Crear">Crear antecedente académico</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Nombre)
+                @Html.DisplayNameFor(model => model.Carrera)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Valor)
+                @Html.DisplayNameFor(model => model.AnhoInicio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AnhoTermino)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Vigente)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TipoInstitucion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descripcion)
             </th>
             <th></th>
         </tr>
@@ -26,11 +38,23 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
+                @Html.DisplayFor(modelItem => item.Carrera)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Valor)
+                @Html.DisplayFor(modelItem => item.AnhoInicio)
             </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AnhoTermino)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Vigente)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TipoInstitucion.Tipo)
+            </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Descripcion)
+                </td>
             <td>
                 <a asp-action="Editar" asp-route-id="@IdProtector.EncryptId(item.Id)">Editar</a> |
                 <form asp-action="Delete" method="post" class="delete-form">
@@ -85,8 +109,5 @@
             });
         }
     </script>
-   
-
 
 }
-

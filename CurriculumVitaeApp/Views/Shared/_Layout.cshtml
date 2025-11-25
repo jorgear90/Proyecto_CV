@@ -1,5 +1,5 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -23,10 +23,25 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="DatosBasicos" asp-action="Index">Perfil</a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="ExperienciaLaboral" asp-action="Index">Experiencia laboral</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Habilidades" asp-action="Index">Habilidades</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="FormacionAcademica" asp-action="Index">Formación Academica</a>
+                        </li>
+                    </ul>
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <form asp-controller="Home" asp-action="Logout" method="post" class="form-inline">
-                                <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-link nav-link text-dark">Cerrar Sesión</button>
+                                <button type="submit" onclick="cerrarSesion(event)" class="btn btn-link nav-link text-dark">Cerrar Sesión</button>
                                 <input type="hidden" name="submitButton" id="submitButtonHidden" />
                             </form>
                         </li>
@@ -52,7 +67,7 @@
     @await RenderSectionAsync("Scripts", required: false)
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function confirmarEliminacion(event) {
+        function cerrarSesion(event) {
             event.preventDefault();
 
             Swal.fire({

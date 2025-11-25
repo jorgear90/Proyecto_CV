@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "MiClaveSegura123!"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+      - ./backup:/var/opt/mssql/backup
+
+  api:
+    build: .
+    container_name: mi-api
+    depends_on:
+      - sqlserver
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8080:8080"
+    networks:
+      - default
+
+volumes:
+  sql_data:

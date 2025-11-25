@@ -1,23 +1,32 @@
-﻿@model IEnumerable<CurriculumVitaeApp.Models.DatosBasicos>
+﻿@model IEnumerable<CurriculumVitaeApp.Models.ExperienciaLaboral>
 @inject CurriculumVitaeApp.Helpers.IdProtector IdProtector
 
 @{
     ViewData["Title"] = "Index";
 }
 
-<h1>Datos Básicos</h1>
+<h1>Index</h1>
 
 <p>
-    <a asp-action="Crear">Crea un dato básico</a>
+    <a asp-action="Crear">Crear antecedente laboral</a>
 </p>
 <table class="table">
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Nombre)
+                @Html.DisplayNameFor(model => model.FechaInicio)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Valor)
+                @Html.DisplayNameFor(model => model.FechaTermino)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Vigente)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Empresa)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descripcion)
             </th>
             <th></th>
         </tr>
@@ -26,10 +35,19 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
+                @Html.DisplayFor(modelItem => item.FechaInicio)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Valor)
+                @Html.DisplayFor(modelItem => item.FechaTermino)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Vigente)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Empresa)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Descripcion)
             </td>
             <td>
                 <a asp-action="Editar" asp-route-id="@IdProtector.EncryptId(item.Id)">Editar</a> |
@@ -85,8 +103,5 @@
             });
         }
     </script>
-   
-
 
 }
-

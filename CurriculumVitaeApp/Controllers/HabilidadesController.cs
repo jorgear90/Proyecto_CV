@@ -7,24 +7,24 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CurriculumVitaeApp.Data;
 using CurriculumVitaeApp.Models;
+using CurriculumVitaeApp.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using CurriculumVitaeApp.Helpers;
 
 namespace CurriculumVitaeApp.Controllers
 {
-    public class DatosBasicosController : Controller
+    public class HabilidadesController : Controller
     {
         private readonly AppDbContext _context;
         private readonly IdProtector _idProtector;
 
-        public DatosBasicosController(AppDbContext context, IdProtector idProtector)
+        public HabilidadesController(AppDbContext context, IdProtector idProtector)
         {
             _context = context;
             _idProtector = idProtector;
         }
 
-        // GET: DatosBasicos
+        // GET: Habilidades
         public async Task<IActionResult> Index()
         {
             var token = Request.Cookies["jwtToken"];
@@ -43,11 +43,12 @@ namespace CurriculumVitaeApp.Controllers
 
             var idUsuario = await _context.Usuarios.Where(u => u.Correo == correo).Select(u => u.Id).FirstOrDefaultAsync();
 
-            var datosBasicos = _context.Perfil.Include(d => d.Usuarios).Where(d => d.UsuarioID == idUsuario);
-            return View(await datosBasicos.ToListAsync());
+            var habilidades = _context.Habilidades.Include(d => d.Usuarios).Where(d => d.UsuarioID == idUsuario);
+
+            return View(await habilidades.ToListAsync());
         }
 
-        // GET: DatosBasicos/Create
+        // GET: Habilidades/Create
         public async Task<IActionResult> Crear()
         {
             var idUsuario = await getIdUsuario();
@@ -55,13 +56,134 @@ namespace CurriculumVitaeApp.Controllers
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
+            ViewBag.idUsuario = idUsuario;
             return View();
+        }
 
-            /*<div class="form-group">
-                <input type="hidden" asp-for="UsuarioID" />
-                <input type="text" name="idUsuario" value="@ViewBag.idUsuario" />
-                <span asp-validation-for="UsuarioID" class="text-danger"></span>
-            </div>*/
+        // POST: Habilidades/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,Descripcion")] Habilidad habilidad)
+        {
+            var idUsuario = await getIdUsuario();
+
+            habilidad.UsuarioID = idUsuario;
+
+            if (ModelState.IsValid)
+            {
+                _context.Add(habilidad);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            ViewData["UsuarioID"] = new SelectList(_context.Usuarios, "Id", "Id", habilidad.UsuarioID);
+            return View(habilidad);
+        }
+
+        // GET: Habilidades/Edit/5
+        public async Task<IActionResult> Editar(string id)
+        {
+            var token = Request.Cookies["jwtToken"];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login", "Usuarios");
+            }
+
+            int realId;
+
+            try
+            {
+                realId = _idProtector.DecryptId(id);
+            }
+            catch
+            {
+                return BadRequest("ID inválido");
+            }
+
+            var habilidad = await _context.Habilidades.FindAsync(realId);
+            if (habilidad == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.EncryptedId = id;
+
+            return View(habilidad);
+        }
+
+        // POST: Habilidades/Edit/5
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Editar(string encryptedId, [Bind("Descripcion")] Habilidad habilidad)
+        {
+            var idUsuario = await getIdUsuario();
+
+            int realId;
+
+            try
+            {
+                realId = _idProtector.DecryptId(encryptedId);
+            }
+            catch
+            {
+                return BadRequest("ID inválido");
+            }
+
+            habilidad.Id = realId;
+            habilidad.UsuarioID = idUsuario;
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(habilidad);
+                    await _context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!HabilidadExists(habilidad.Id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(habilidad);
+        }
+
+        // POST: Habilidades/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(string id)
+        {
+            int realId;
+
+            try
+            {
+                realId = _idProtector.DecryptId(id);
+            }
+            catch
+            {
+                return BadRequest("ID inválido");
+            }
+
+            var habilidad = await _context.Habilidades.FindAsync(realId);
+            if (habilidad != null)
+            {
+                _context.Habilidades.Remove(habilidad);
+            }
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         public async Task<int> getIdUsuario()
@@ -86,144 +208,9 @@ namespace CurriculumVitaeApp.Controllers
 
         }
 
-        // POST: DatosBasicos/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,Nombre,Valor")] DatosBasicos datosBasicos)
+        private bool HabilidadExists(int id)
         {
-            var idUsuario = await getIdUsuario();
-
-            datosBasicos.UsuarioID = idUsuario;
-
-            if (ModelState.IsValid)
-            {
-                _context.Add(datosBasicos);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            return View(datosBasicos);
-        }
-
-        // GET: DatosBasicos/Edit/5
-        public async Task<IActionResult> Editar(string id)
-        {
-            var token = Request.Cookies["jwtToken"];
-
-            if (string.IsNullOrEmpty(token))
-            {
-                return RedirectToAction("Login", "Usuarios");
-            }
-
-            int realId;
-
-            try
-            {
-                realId = _idProtector.DecryptId(id);
-            }
-            catch
-            {
-                return BadRequest("ID inválido");
-            }
-
-            var datoBasico = await _context.Perfil.FindAsync(realId);
-            if (datoBasico == null) return NotFound();
-
-            ViewBag.EncryptedId = id;
-
-            return View(datoBasico);
-        }
-
-
-        // POST: DatosBasicos/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(string encryptedId, [Bind("Nombre,Valor")] DatosBasicos datosBasicos)
-        {
-            var idUsuario = await getIdUsuario();
-
-            int realId;
-
-            try
-            {
-                realId = _idProtector.DecryptId(encryptedId);
-            }
-            catch
-            {
-                return BadRequest("ID inválido");
-            }
-
-            datosBasicos.Id = realId;
-            datosBasicos.UsuarioID = idUsuario;
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    var registroEditado = await _context.Perfil.Where(p => p.Id == datosBasicos.Id).FirstOrDefaultAsync();
-
-                    registroEditado.Nombre = datosBasicos.Nombre;
-                    registroEditado.Valor = datosBasicos.Valor;
-
-                    _context.Update(registroEditado);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!DatosBasicosExists(datosBasicos.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            return View(datosBasicos);
-        }
-
-        public class EditDto
-        {
-            public int Id { get; set; }
-            public string Nombre { get; set; }
-            public string Descripcion { get; set; }
-
-        }
-
-        // POST: DatosBasicos/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(string id)
-        {
-            int realId;
-
-            try
-            {
-                realId = _idProtector.DecryptId(id);
-            }
-            catch
-            {
-                return BadRequest("ID inválido");
-            }
-
-            var datosBasicos = await _context.Perfil.FindAsync(realId);
-            if (datosBasicos != null)
-            {
-                _context.Perfil.Remove(datosBasicos);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool DatosBasicosExists(int id)
-        {
-            return _context.Perfil.Any(e => e.Id == id);
+            return _context.Habilidades.Any(e => e.Id == id);
         }
     }
 }

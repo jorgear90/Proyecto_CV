@@ -18,7 +18,7 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Create">
+        <form asp-action="Crear">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label asp-for="Correo" class="control-label"></label>
@@ -51,24 +51,26 @@
     <a asp-action="Login">Volver a Login</a>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@if (TempData["Creado"] != null)
+{
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Usuario creado',
+            text: 'El usuario se ha creado con éxito.',
+            confirmButtonColor: '#005D8F',
+            allowOutsideClick: false,
+            allowEscapeKey: false
+        }).then(() => {
+            // ✅ Redirige automáticamente al login
+            window.location.href = '@Url.Action("Login", "Usuarios")';
+        });
+    </script>
+}
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    @if (TempData["Creado"] != null)
-    {
-        <script>
-            Swal.fire({
-                icon: 'success',
-                title: 'Usuario creado',
-                text: 'El usuario se ha creado con éxito.',
-                confirmButtonColor: '#005D8F',
-                allowOutsideClick: false,
-                allowEscapeKey: false
-            }).then(() => {
-                // ✅ Redirige automáticamente al login
-                window.location.href = '@Url.Action("Login", "Usuarios")';
-            });
-        </script>
-    }
+   
 }
 

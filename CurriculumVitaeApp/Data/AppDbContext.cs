@@ -11,7 +11,7 @@ namespace CurriculumVitaeApp.Data
         }
 
         public DbSet<Usuario> Usuarios { get; set; }
-        public DbSet<ExperienciaLaboral> ExperienciaLaborals { get; set; }
+        public DbSet<ExperienciaLaboral> AntecedentesLaborales { get; set; }
         public DbSet<FormacionAcademica> FormacionAcademica { get; set; }
         public DbSet<Habilidad> Habilidades { get; set; }
         public DbSet<DatosBasicos> Perfil { get; set; }

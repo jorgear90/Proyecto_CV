@@ -1,0 +1,61 @@
+﻿@model CurriculumVitaeApp.Models.DatosBasicos
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Editar</h1>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Editar" id="formEditar">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" name="encryptedId" value="@ViewBag.EncryptedId" />
+            <div class="form-group">
+                <label asp-for="Nombre" class="control-label"></label>
+                <input asp-for="Nombre" class="form-control" required/>
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Valor" class="control-label"></label>
+                <input asp-for="Valor" class="form-control" required/>
+                <span asp-validation-for="Valor" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" onclick="confirmarEdicion(event)" value="Guardar" class="btn btn-success" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Volver</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function confirmarEdicion(event) {
+            event.preventDefault();
+
+            var form = $("#formEditar");
+
+            if (!form.valid()) {
+                return;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Registro editado',
+                text: 'El registro se ha editado con éxito.',
+                confirmButtonColor: '#005D8F',
+                allowOutsideClick: false,
+                allowEscapeKey: false
+            }).then(() => {
+                document.getElementById('formEditar').submit();
+            });
+        }
+    </script>
+}
