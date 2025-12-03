@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using CurriculumVitaeApp.Helpers;
 
 namespace CurriculumVitaeApp.Models
 {
@@ -8,8 +9,10 @@ namespace CurriculumVitaeApp.Models
         [Key]
         public int Id { get; set; }
         public int UsuarioID { get; set; }
+        [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
         [Display(Name = "Dato")]
         public string Nombre { get; set; }
+        [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
         [Display(Name = "Valor")]
         public string Valor { get; set; }
 

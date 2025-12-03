@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using CurriculumVitaeApp.Helpers;
+using System.ComponentModel.DataAnnotations;
 
 namespace CurriculumVitaeApp.Models
 {
@@ -6,7 +7,9 @@ namespace CurriculumVitaeApp.Models
     {
         [Key]
         public int Id { get; set; }
+        [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
         public string Correo { get; set; }
+        [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
         public string Password { get; set; }
 
         //Claves foraneas de salida
