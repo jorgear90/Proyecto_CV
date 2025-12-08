@@ -64,7 +64,6 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear([Bind("Id,UsuarioID,Descripcion")] Habilidad habilidad)
         {
             var idUsuario = await getIdUsuario();
@@ -117,8 +116,7 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(string encryptedId, [Bind("Descripcion")] Habilidad habilidad)
+        public async Task<IActionResult> Editar(string idEditar, [Bind("Descripcion")] Habilidad habilidad)
         {
             var idUsuario = await getIdUsuario();
 
@@ -126,7 +124,7 @@ namespace CurriculumVitaeApp.Controllers
 
             try
             {
-                realId = _idProtector.DecryptId(encryptedId);
+                realId = _idProtector.DecryptId(idEditar);
             }
             catch
             {
@@ -161,8 +159,7 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         // POST: Habilidades/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ActionName("Eliminar")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             int realId;

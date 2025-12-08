@@ -90,7 +90,6 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear([Bind("Id,UsuarioID,Nombre,Valor")] DatosBasicos datosBasicos)
         {
             var idUsuario = await getIdUsuario();
@@ -103,7 +102,7 @@ namespace CurriculumVitaeApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(datosBasicos);
+            return PartialView(datosBasicos);
         }
 
         // GET: DatosBasicos/Edit/5
@@ -140,8 +139,7 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(string encryptedId, [Bind("Nombre,Valor")] DatosBasicos datosBasicos)
+        public async Task<IActionResult> Editar(string idEditar, [Bind("Nombre,Valor")] DatosBasicos datosBasicos)
         {
             var idUsuario = await getIdUsuario();
 
@@ -149,7 +147,7 @@ namespace CurriculumVitaeApp.Controllers
 
             try
             {
-                realId = _idProtector.DecryptId(encryptedId);
+                realId = _idProtector.DecryptId(idEditar);
             }
             catch
             {
@@ -184,7 +182,7 @@ namespace CurriculumVitaeApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(datosBasicos);
+            return PartialView("Index", datosBasicos);
         }
 
         public class EditDto
@@ -196,8 +194,7 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         // POST: DatosBasicos/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ActionName("Eliminar")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             int realId;

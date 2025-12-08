@@ -3,16 +3,85 @@
 
 @{
     ViewData["Title"] = "Index";
+    var listaTipos = ViewData["TipoInstitucionID"] as IEnumerable<SelectListItem>;
 }
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Crear">Crear antecedente académico</a>
-</p>
+<div class="modal fade" id="modalDescripcionFa" tabindex="-1" aria-labelledby="modalDescripcionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="popup modal-header text-white">
+                <h5 class="modal-title titulo-popup" id="modalDescripcionLabel">Descripción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarDescripcionFa" method="post" asp-action="Editar">
+                    <input type="hidden" name="idEditar" id="modal-id-editar-fa" />
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea name="Descripcion" id="modal-descripcion-fa" class="form-control" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">Guardar</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cerrar" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="col-md-4">
+    <form  id="formCrearFormacionAcademica" asp-action="Crear">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label class="control-label"> Tipo de institución</label>
+            <select name="TipoInstitucionID" class="form-control">
+                @foreach (var item in listaTipos)
+                {
+                    <option value="@item.Value">@item.Text</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="control-label"> Nombre de la institución</label>
+            <input name="NombreInstitucion" class="form-control" required />
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="control-label"> Carrera</label>
+            <input name="Carrera" class="form-control" required />
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="control-label"> Año de inicio</label>
+            <input name="AnhoInicio" class="form-control" required />
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="control-label"> Año de termino</label>
+            <input name="AnhoTermino" class="form-control"/>
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="control-label"></label>
+            <textarea textarea type="text" name="Descripcion" class="form-control" required></textarea>
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Crear" class="btn btn-success btn-sm" />
+        </div>
+    </form>
+</div>
+
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.NombreInstitucion)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Carrera)
             </th>
@@ -38,29 +107,61 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Carrera)
+                <input type="text" name="NombreInstitucion" class="form-control input-nombre-institucion" value="@item.NombreInstitucion" required />
+                <span for="NombreInstitucion" class="text-danger"></span>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.AnhoInicio)
+                <input type="text" name="Carrera" class="form-control input-carrera" value="@item.Carrera" required />
+                <span for="Carrera" class="text-danger"></span>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.AnhoTermino)
+                <input type="text" name="AnhoInicio" class="form-control input-anho-inicio" value="@item.AnhoInicio" required />
+                <span for="FechaInicio" class="text-danger"></span>
+            </td>
+             <td>
+                <input type="text" name="AnhoTermino" class="form-control input-anho-termino" value="@item.AnhoTermino"/>
+                <span for="AnhoTermino" class="text-danger"></span>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Vigente)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.TipoInstitucion.Tipo)
+                <select name="TipoInstitucionID" class="form-control input-tipo-institucion">
+                    @if (listaTipos != null)
+                    {
+                        foreach (var i in listaTipos)
+                        {
+                            // compara seguros (evitar NullReference)
+                            bool isSelected = string.Equals(i.Text, item.TipoInstitucion?.Tipo, StringComparison.Ordinal);
+                            var selAttr = isSelected ? " selected=\"selected\"" : "";
+                            var optionHtml = $"<option value=\"{i.Value}\"{selAttr}>{System.Net.WebUtility.HtmlEncode(i.Text)}</option>";
+
+                            @Html.Raw(optionHtml)
+                        }
+                    }
+                </select>
             </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Descripcion)
-                </td>
             <td>
-                <a asp-action="Editar" asp-route-id="@IdProtector.EncryptId(item.Id)">Editar</a> |
-                <form asp-action="Delete" method="post" class="delete-form">
+                <span class="descripcion-clickable-fa text-primary"
+                        data-descripcion="@item.Descripcion"
+                        data-id="@IdProtector.EncryptId(item.Id)"
+                        style="cursor:pointer; text-decoration: underline;">
+                    Ver descripción
+                </span>
+            </td>
+            <td>
+                <form asp-action="Editar" id="formEditarFormacionAcademica" method="post" class="edit-form">
+                    <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
+                    <input type="hidden" name="NombreInstitucion" class="hidden-nombre-institucion" />
+                    <input type="hidden" name="Carrera" class="hidden-carrera" />
+                    <input type="hidden" name="AnhoInicio" class="hidden-anho-inicio" />
+                    <input type="hidden" name="AnhoTermino" class="hidden-anho-termino" />
+                    <input type="hidden" name="TipoInstitucionID" class="hidden-tipo-institucion" />
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+                    <form asp-action="Delete" id="formEliminarFormacionAcademica" method="post" class="delete-form">
                     <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
-                    <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
-                    <input type="hidden" name="submitButton" id="submitButtonHidden" />
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
                 </form>
             </td>
         </tr>
@@ -79,6 +180,49 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        $(document).on('click', '.descripcion-clickable-fa', function () {
+            const descripcion = $(this).data('descripcion');
+            const id = $(this).data('id');
+
+            const modal = $('#modalDescripcionFa');
+            modal.find('#modal-descripcion-fa').val(descripcion);
+            modal.find('#modal-id-editar-fa').val(id);
+
+            modal.modal('show');
+        });
+
+        $(document).on('submit', '#formEditarDescripcionFa', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/FormacionAcademica/Editar',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function (result) {
+
+                    // Cerrar modal
+                    $('#modalDescripcionFa').modal('hide');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Descripción actualizada',
+                        confirmButtonColor: '#005D8F'
+                    });
+
+                    // Recargar parcial si es necesario:
+                    const contenedor = $('.opcion[data-url="/FormacionAcademica/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al guardar descripción',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        });
+
         function confirmarEliminacion(event) {
             event.preventDefault();
 

@@ -59,7 +59,6 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Crear([Bind("Id,UsuarioID,FechaInicio,FechaTermino,Empresa,Descripcion")] ExperienciaLaboral experienciaLaboral)
         {
             var idUsuario = await getIdUsuario();
@@ -115,8 +114,7 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(string encryptedId, [Bind("FechaInicio,FechaTermino,Empresa,Descripcion")] ExperienciaLaboral antecedenteLaboral)
+        public async Task<IActionResult> Editar(string idEditar, [Bind("FechaInicio,FechaTermino,Empresa,Descripcion")] ExperienciaLaboral antecedenteLaboral)
         {
             var idUsuario = await getIdUsuario();
 
@@ -124,50 +122,62 @@ namespace CurriculumVitaeApp.Controllers
 
             try
             {
-                realId = _idProtector.DecryptId(encryptedId);
+                realId = _idProtector.DecryptId(idEditar);
             }
             catch
             {
                 return BadRequest("ID inválido");
             }
 
-            antecedenteLaboral.Vigente = false;
+            // Obtener el registro original (ya trackeado)
+            var registroExistente = await _context.AntecedentesLaborales
+                .FirstOrDefaultAsync(a => a.Id == realId);
 
-            if (antecedenteLaboral.FechaTermino == null)
+            if (registroExistente == null)
+                return NotFound();
+
+            // Lógica de reemplazo según si la descripción viene nula o no
+            if (antecedenteLaboral.Descripcion == null)
             {
-                antecedenteLaboral.Vigente = true;
+                // Mantener la descripción original
+                antecedenteLaboral.Descripcion = registroExistente.Descripcion;
+                ModelState.Remove("Descripcion");
+            }
+            else
+            {
+                // Si cambia la descripción, NO permitir cambiar otros campos
+                antecedenteLaboral.FechaInicio = registroExistente.FechaInicio;
+                antecedenteLaboral.FechaTermino = registroExistente.FechaTermino;
+                antecedenteLaboral.Empresa = registroExistente.Empresa;
+                ModelState.Remove("FechaInicio");
+                ModelState.Remove("Empresa");
             }
 
-            antecedenteLaboral.Id = realId;
-            antecedenteLaboral.UsuarioID = idUsuario;
+            if (!ModelState.IsValid)
+                return PartialView("Index", antecedenteLaboral);
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(antecedenteLaboral);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!ExperienciaLaboralExists(antecedenteLaboral.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
+            // ------------------------
+            // 🔥 ACTUALIZAR SOLO EL REGISTRO TRACKEADO
+            // ------------------------
 
-            return View(antecedenteLaboral);
+            registroExistente.FechaInicio = antecedenteLaboral.FechaInicio;
+            registroExistente.FechaTermino = antecedenteLaboral.FechaTermino;
+            registroExistente.Empresa = antecedenteLaboral.Empresa;
+            registroExistente.Descripcion = antecedenteLaboral.Descripcion;
+            registroExistente.UsuarioID = idUsuario;
+
+            // Actualizar campo Vigente
+            bool vigente = antecedenteLaboral.FechaTermino == null;
+            registroExistente.Vigente = vigente;
+
+            // Guardar cambios
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: ExperienciaLaboral/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ActionName("Eliminar")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             int realId;

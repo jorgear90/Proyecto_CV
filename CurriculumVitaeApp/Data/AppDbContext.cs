@@ -22,5 +22,6 @@ namespace CurriculumVitaeApp.Data
             base.OnModelCreating(modelBuilder);
 
         }   
+        public DbSet<CurriculumVitaeApp.Models.Curriculum> Curriculum { get; set; } = default!;
     }
 }

@@ -10,6 +10,7 @@ using CurriculumVitaeApp.Models;
 using CurriculumVitaeApp.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using CurriculumVitaeApp.Migrations;
 
 namespace CurriculumVitaeApp.Controllers
 {
@@ -45,6 +46,8 @@ namespace CurriculumVitaeApp.Controllers
 
             var antecedentesAcademicos = _context.FormacionAcademica.Include(d => d.TipoInstitucion).Where(d => d.UsuarioID == idUsuario);
 
+            ViewData["TipoInstitucionID"] = new SelectList(_context.tipoInstitucion, "ID", "Tipo");
+
             return View(await antecedentesAcademicos.ToListAsync());
         }
 
@@ -66,8 +69,7 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,TipoInstitucionID,NombreInstitucion,Carrera,AnhoInicio,AnhoTermino,Vigente,Descripcion")] FormacionAcademica formacionAcademica)
+        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,TipoInstitucionID,NombreInstitucion,Carrera,AnhoInicio,AnhoTermino,Vigente,Descripcion")] CurriculumVitaeApp.Models.FormacionAcademica formacionAcademica)
         {
             var idUsuario = await getIdUsuario();
 
@@ -127,8 +129,7 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(string encryptedId, [Bind("TipoInstitucionID,NombreInstitucion,Carrera,AnhoInicio,AnhoTermino,Descripcion")] FormacionAcademica formacionAcademica)
+        public async Task<IActionResult> Editar(string idEditar, [Bind("TipoInstitucionID,NombreInstitucion,Carrera,AnhoInicio,AnhoTermino,Descripcion")] CurriculumVitaeApp.Models.FormacionAcademica formacionAcademica)
         {
             var idUsuario = await getIdUsuario();
 
@@ -136,51 +137,65 @@ namespace CurriculumVitaeApp.Controllers
 
             try
             {
-                realId = _idProtector.DecryptId(encryptedId);
+                realId = _idProtector.DecryptId(idEditar);
             }
             catch
             {
                 return BadRequest("ID inválido");
             }
 
-            formacionAcademica.Vigente = false;
+            // Obtener el registro original (ya trackeado)
+            var registroExistente = await _context.FormacionAcademica
+                .FirstOrDefaultAsync(a => a.Id == realId);
 
-            if (formacionAcademica.AnhoTermino == null)
+            if (registroExistente == null)
+                return NotFound();
+
+            // Lógica de reemplazo según si la descripción viene nula o no
+            if (formacionAcademica.Descripcion == null)
             {
-                formacionAcademica.Vigente = true;
+                // Mantener la descripción original
+                formacionAcademica.Descripcion = registroExistente.Descripcion;
+                ModelState.Remove("Descripcion");
+            }
+            else
+            {
+                // Si cambia la descripción, NO permitir cambiar otros campos
+                formacionAcademica.AnhoInicio = registroExistente.AnhoInicio;
+                formacionAcademica.AnhoTermino = registroExistente.AnhoTermino;
+                formacionAcademica.Carrera = registroExistente.Carrera;
+                formacionAcademica.NombreInstitucion = registroExistente.NombreInstitucion;
+                formacionAcademica.TipoInstitucionID = registroExistente.TipoInstitucionID;
+                ModelState.Remove("AnhoInicio");
+                ModelState.Remove("NombreInstitucion");
+                ModelState.Remove("Carrera");
             }
 
-            formacionAcademica.Id = realId;
-            formacionAcademica.UsuarioID = idUsuario;
+            if (!ModelState.IsValid)
+                return PartialView("Index", formacionAcademica);
 
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(formacionAcademica);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FormacionAcademicaExists(formacionAcademica.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
+            registroExistente.AnhoInicio = formacionAcademica.AnhoInicio;
+            registroExistente.AnhoTermino = formacionAcademica.AnhoTermino;
+            registroExistente.NombreInstitucion = formacionAcademica.NombreInstitucion;
+            registroExistente.Carrera = formacionAcademica.Carrera;
+            registroExistente.Descripcion = formacionAcademica.Descripcion;
+            registroExistente.TipoInstitucionID = formacionAcademica.TipoInstitucionID;
+            registroExistente.UsuarioID = idUsuario;
+
+            // Actualizar campo Vigente
+            bool vigente = formacionAcademica.AnhoTermino == null;
+            registroExistente.Vigente = vigente;
+
+            // Guardar cambios
+            await _context.SaveChangesAsync();
 
             ViewData["TipoInstitucionID"] = new SelectList(_context.tipoInstitucion, "ID", "Tipo", formacionAcademica.TipoInstitucionID);
-            return View(formacionAcademica);
+
+            return RedirectToAction(nameof(Index));
         }
 
         // POST: FormacionAcademica/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost, ActionName("Eliminar")]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             int realId;

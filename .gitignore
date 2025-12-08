@@ -16,7 +16,6 @@ out/
 # Archivos de configuración local
 appsettings.Development.json
 appsettings.Local.json
-appsettings.json
 
 # Paquetes
 *.nupkg

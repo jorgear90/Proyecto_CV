@@ -7,10 +7,12 @@ namespace CurriculumVitaeApp.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IWebHostEnvironment _env;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IWebHostEnvironment env)
         {
             _logger = logger;
+            _env = env;
         }
 
         public IActionResult Index()
@@ -23,15 +25,16 @@ namespace CurriculumVitaeApp.Controllers
                 return RedirectToAction("Login", "Usuarios");
             }
 
-            // Validar que el token sea válido
-            /*var valido = ValidarJwtToken(token);
-            if (!valido)
-            {
-                // Token inválido → redirigir o manejar como prefieras
-                return RedirectToAction("Login", "Auth");
-            }*/
+            // Ruta física a wwwroot/cv
+            var rutaCarpeta = Path.Combine(_env.WebRootPath, "cv");
 
-            return View();
+            // Obtiene todos los archivos de imagen en la carpeta
+            var imagenes = Directory.GetFiles(rutaCarpeta)
+                                    .Select(Path.GetFileName)   // solo el nombre del archivo
+                                    .ToList();
+
+            return View(imagenes);
+
         }
 
         [HttpPost]

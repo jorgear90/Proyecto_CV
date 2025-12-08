@@ -6,10 +6,60 @@
 }
 
 <h1>Index</h1>
+<div class="modal fade" id="modalDescripcion" tabindex="-1" aria-labelledby="modalDescripcionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="popup modal-header text-white">
+                <h5 class="modal-title titulo-popup" id="modalDescripcionLabel">Descripción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarDescripcion" method="post" asp-action="Editar">
+                    <input type="hidden" name="idEditar" id="modal-id-editar-ex" />
+                    <div class="form-group">
+                        <label>Descripción</label>
+                        <textarea name="Descripcion" id="modal-descripcion" class="form-control" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-2">Guardar</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cerrar" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-<p>
-    <a asp-action="Crear">Crear antecedente laboral</a>
-</p>
+<div class="col-md-4">
+    <form id="formCrearExperienciaLaboral" asp-action="Crear">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-group">
+            <label class="control-label"> Fecha de inicio</label>
+            <input name="fechaInicio" class="form-control" required />
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Fecha de termino</label>
+            <input name="fechaTermino" class="form-control" />
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Empresa</label>
+            <input name="Empresa" class="form-control" required />
+            <span  class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label class="control-label">Descripción</label>
+            <textarea textarea type="text" name="Descripcion" class="form-control" required></textarea>
+            <span class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Crear" class="btn btn-success btn-sm" />
+        </div>
+    </form>
+</div>
+
 <table class="table">
     <thead>
         <tr>
@@ -35,26 +85,40 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.FechaInicio)
+                <input type="text" name="FechaInicio" class="form-control input-fecha-inicio" value="@item.FechaInicio" required />
+                <span for="FechaInicio" class="text-danger"></span>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.FechaTermino)
+                <input type="text" name="FechaTermino" class="form-control input-fecha-termino" value="@item.FechaTermino" required />
+                <span for="FechaTermino" class="text-danger"></span>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Vigente)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Empresa)
+                <input type="text" name="Empresa" class="form-control input-empresa" value="@item.Empresa" required />
+                <span for="Empresa" class="text-danger"></span>
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
+                <span class="descripcion-clickable-el text-primary"
+                        data-descripcion="@item.Descripcion"
+                        data-id="@IdProtector.EncryptId(item.Id)"
+                        style="cursor:pointer; text-decoration: underline;">
+                    Ver descripción
+                </span>
             </td>
             <td>
-                <a asp-action="Editar" asp-route-id="@IdProtector.EncryptId(item.Id)">Editar</a> |
-                <form asp-action="Delete" method="post" class="delete-form">
+                
+                <form asp-action="Editar" id="formEditarExperienciaLaboral" method="post" class="edit-form">
+                    <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
+                    <input type="hidden" name="FechaInicio" class="hidden-fecha-inicio" />
+                    <input type="hidden" name="FechaTermino" class="hidden-fecha-termino" />
+                    <input type="hidden" name="Empresa" class="hidden-empresa" />
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+                <form asp-action="Delete" id="formEliminarExperiencia" method="post" class="delete-form">
                     <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
-                    <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
-                    <input type="hidden" name="submitButton" id="submitButtonHidden" />
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
                 </form>
             </td>
         </tr>
@@ -73,6 +137,18 @@
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        $(document).on('click', '.descripcion-clickable-el', function () {
+            const descripcion = $(this).data('descripcion');
+            const id = $(this).data('id');
+
+            const modal = $('#modalDescripcion');
+            modal.find('#modal-descripcion').val(descripcion);
+            modal.find('#modal-id-editar-ex').val(id);
+
+            modal.modal('show');
+        });
+
+
         function confirmarEliminacion(event) {
             event.preventDefault();
 
@@ -102,6 +178,39 @@
 
             });
         }
+
+        $(document).on('submit', '#formEditarDescripcion', function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/ExperienciaLaboral/Editar',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function (result) {
+
+                    // Cerrar modal
+                    $('#modalDescripcion').modal('hide');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Descripción actualizada',
+                        confirmButtonColor: '#005D8F'
+                    });
+
+                    // Recargar parcial si es necesario:
+                    const contenedor = $('.opcion[data-url="/ExperienciaLaboral/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al guardar descripción',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        });
+
     </script>
 
 }

@@ -7,9 +7,31 @@
 
 <h1>Index</h1>
 
-<p>
-    <a asp-action="Crear">Crear habilidad</a>
-</p>
+<style>
+    .form-row {
+        display: flex;
+        gap: 15px; /* separación entre columnas */
+        align-items: flex-end; /* alinea inputs y button abajo */
+    }
+</style>
+
+<div class="col-md-4">
+    <form id="formCrear" asp-action="Crear">
+        @Html.AntiForgeryToken()
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <div class="form-row">
+            <div>
+                <label for="Descripcion" class="control-label">Descripción</label>
+                <input name="Descripcion" for="Descripcion" class="form-control" required />
+                <span for="Descripcion" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Crear" class="btn btn-success btn-sm" />
+            </div>
+        </div>
+    </form>
+</div>
+
 <table class="table">
     <thead>
         <tr>
@@ -23,16 +45,21 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
+                <input type="text" name="Descripcion" class="form-control input-descripcion" value="@item.Descripcion" required />
+                <span for="Descripcion" class="text-danger"></span>
             </td>
             <td>
-                <a asp-action="Editar" asp-route-id="@IdProtector.EncryptId(item.Id)">Editar</a> |
-                <form asp-action="Delete" method="post" class="delete-form">
+                <form asp-action="Editar" id="formEditarHabilidad" method="post" class="edit-form">
+                    <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
+                    <input type="hidden" name="Descripcion" class="hidden-descripcion" />
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </form>
+                <form asp-action="Eliminar" id="formEliminarHabilidad" method="post" class="delete-form">
                     <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
-                    <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
-                    <input type="hidden" name="submitButton" id="submitButtonHidden" />
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
                 </form>
             </td>
+            
         </tr>
 }
     </tbody>

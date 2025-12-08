@@ -1,0 +1,752 @@
+﻿@model CurriculumVitaeApp.Models.Curriculum
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Detalles</h1>
+
+<div class="opciones-container">
+    <div class="opcion" data-url="/DatosBasicos/Index">
+        <button class="btn-toggle">+</button>
+        <span class="titulo">Datos Básicos</span>
+        <div class="contenido-parcial"></div>
+    </div>
+
+    <div class="opcion" data-url="/ExperienciaLaboral/Index">
+        <button class="btn-toggle">+</button>
+        <span class="titulo">Experiencia Laboral</span>
+        <div class="contenido-parcial"></div>
+    </div>
+
+    <div class="opcion" data-url="/FormacionAcademica/Index">
+        <button class="btn-toggle">+</button>
+        <span class="titulo">Formación académica</span>
+        <div class="contenido-parcial"></div>
+    </div>
+
+    <div class="opcion" data-url="/Habilidades/Index">
+        <button class="btn-toggle">+</button>
+        <span class="titulo">Habilidades</span>
+        <div class="contenido-parcial"></div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        function cargarVistaParcial(container, url) {
+            $.ajax({
+                url: url,
+                type: 'GET',
+                success: function (result) {
+                    container.hide().html(result).slideDown();
+                },
+                error: function () {
+                    container.html('<p class="text-danger">Error al cargar la vista.</p>');
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $('.btn-toggle').click(function () {
+                const parent = $(this).closest('.opcion');
+                const contentContainer = parent.find('.contenido-parcial');
+                const url = parent.data('url');
+                const toggleButton = $(this);
+
+                $('.contenido-parcial').not(contentContainer).slideUp();
+                $('.btn-toggle').not(toggleButton).text('+');
+
+                if (contentContainer.is(':visible')) {
+                    contentContainer.slideUp();
+                    toggleButton.text('+');
+                } else {
+                    cargarVistaParcial(contentContainer, url);
+                    toggleButton.text('–');
+                }
+            });
+
+            const primeraOpcion = $('.opcion').first();
+            const primerBoton = primeraOpcion.find('.btn-toggle');
+            cargarVistaParcial(primeraOpcion.find('.contenido-parcial'), primeraOpcion.data('url'));
+            primerBoton.text('–');
+        });
+
+        //Crear un dato básico
+        $(document).on('submit', '#formCrear', function (e) {
+            e.preventDefault();
+            
+            var form = $(this);
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/DatosBasicos/Crear',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    const contenedor = $('.opcion[data-url="/DatosBasicos/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Dato agregado',
+                        confirmButtonColor: '#005D8F'
+                    });
+                },
+                error: function (xhr) {
+                    Swal.fire({ 
+                        icon: 'error', 
+                        title: 'Error al agregar dato',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        });
+
+        //Editar un dato básico
+        $(document).on('submit', '#formEditar', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            // Tomar los valores visibles
+            var nombre = form.closest('tr').find('.input-nombre').val().trim();
+            var valor = form.closest('tr').find('.input-valor').val().trim();
+
+            // VALIDACIÓN CLIENTE
+            if (nombre === "" || valor === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes completar Nombre y Valor antes de guardar.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return; // NO enviar al servidor
+            }
+
+            // Pasar valores a los inputs hidden del form
+            form.find('.hidden-nombre').val(nombre);
+            form.find('.hidden-valor').val(valor);
+
+            // Token
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/DatosBasicos/Editar',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Dato actualizado',
+                        confirmButtonColor: '#005D8F'
+                    });
+
+                    const contenedor = $('.opcion[data-url="/DatosBasicos/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al editar dato básico',
+                        text: xhr.responseText // ← esto déjalo así
+                    });
+                }
+            });
+        });
+
+        //Eliminar Dato básico
+        $(document).on('submit', '#formEliminar', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            Swal.fire({
+                title: '¿Está seguro que desea eliminar este registro?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+
+                    $.ajax({
+                        url: '/DatosBasicos/Eliminar',
+                        method: 'POST',
+                        data: form.serialize() + "&__RequestVerificationToken=" + token,
+                        success: function (result) {
+                            const contenedor = $('.opcion[data-url="/DatosBasicos/Index"]').find('.contenido-parcial');
+                            contenedor.html(result);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Dato eliminado',
+                                confirmButtonColor: '#005D8F'
+                            });
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error al eliminar dato',
+                                text: xhr.responseText
+                            });
+                        }
+                    });
+
+                }
+
+            });
+        });
+
+        //Crear habilidad
+        $(document).on('submit', '#formCrear', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/Habilidades/Crear',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    const contenedor = $('.opcion[data-url="/Habilidades/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Habilidad agregada',
+                        confirmButtonColor: '#005D8F'
+                    });
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al agregar habilidad',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        });
+
+        //Editar una habilidad
+        $(document).on('submit', '#formEditarHabilidad', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            // Tomar los valores visibles
+            var descripcion = form.closest('tr').find('.input-descripcion').val().trim();
+
+            // VALIDACIÓN CLIENTE
+            if (descripcion  === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar una descripción antes de guardar.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return; // NO enviar al servidor
+            }
+
+            // Pasar valores a los inputs hidden del form
+            form.find('.hidden-descripcion').val(descripcion);
+
+            // Token
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/Habilidades/Editar',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Habilidad actualizada',
+                        confirmButtonColor: '#005D8F'
+                    });
+
+                    const contenedor = $('.opcion[data-url="/Habilidades/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error editar la habilidad',
+                        text: xhr.responseText // ← esto déjalo así
+                    });
+                }
+            });
+        });
+
+        //Eliminar HABILIDAD
+        $(document).on('submit', '#formEliminarHabilidad', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            Swal.fire({
+                title: '¿Está seguro que desea eliminar este registro?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+
+                    $.ajax({
+                        url: '/Habilidades/Eliminar',
+                        method: 'POST',
+                        data: form.serialize() + "&__RequestVerificationToken=" + token,
+                        success: function (result) {
+                            const contenedor = $('.opcion[data-url="/Habilidades/Index"]').find('.contenido-parcial');
+                            contenedor.html(result);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Habilidad eliminada',
+                                confirmButtonColor: '#005D8F'
+                            });
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error al eliminar habilidad',
+                                text: xhr.responseText
+                            });
+                        }
+                    });
+
+                }
+
+            });
+        });
+
+        //Crear Experiencia laboral
+        $(document).on('submit', '#formCrearExperienciaLaboral', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/ExperienciaLaboral/Crear',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    const contenedor = $('.opcion[data-url="/ExperienciaLaboral/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Experiencia laboral agregada',
+                        confirmButtonColor: '#005D8F'
+                    });
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al agregar experiencia laboral',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        });
+
+        //Editar Experiencia laboral
+        $(document).on('submit', '#formEditarExperienciaLaboral', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            // Tomar los valores visibles
+            var fechaInicio = form.closest('tr').find('.input-fecha-inicio').val().trim();
+            var fechaTermino = form.closest('tr').find('.input-fecha-termino').val().trim();
+            var empresa = form.closest('tr').find('.input-empresa').val().trim();
+
+            // VALIDACIÓN CLIENTE
+            if (fechaInicio  === "" && empresa === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar una fecha de inicio y una empresa.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return; // NO enviar al servidor
+            } else if (fechaInicio  === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar una fecha de inicio.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return;
+            } else if (empresa === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar una empresa.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return;
+            }
+
+            // Pasar valores a los inputs hidden del form
+            form.find('.hidden-fecha-inicio').val(fechaInicio);
+            form.find('.hidden-fecha-termino').val(fechaTermino);
+            form.find('.hidden-empresa').val(empresa);
+
+            // Token
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/ExperienciaLaboral/Editar',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Antecedente laboral actualizado',
+                        confirmButtonColor: '#005D8F'
+                    });
+
+                    const contenedor = $('.opcion[data-url="/ExperienciaLaboral/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al editar el registro',
+                        text: xhr.responseText // ← esto déjalo así
+                    });
+                }
+            });
+        });
+
+        //Editar Descripción en Experiencia laboral
+        $(document).on('submit', '#formEditarDescripcion', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            // Tomar los valores visibles
+            var descripcion = form.closest('tr').find('.modal-descripcion').val().trim();
+
+            // VALIDACIÓN CLIENTE
+            if (descripcion  === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar una descripción antes de guardar.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return; // NO enviar al servidor
+            }
+
+            // Token
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/ExperienciaLaboral/Editar',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Descripción actualizada',
+                        confirmButtonColor: '#005D8F'
+                    });
+
+                    const contenedor = $('.opcion[data-url="/ExperienciaLaboral/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al editar la descripción',
+                        text: xhr.responseText // ← esto déjalo así
+                    });
+                }
+            });
+        });
+
+        //Eliminar Antecedente laboral
+        $(document).on('submit', '#formEliminarExperiencia', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            Swal.fire({
+                title: '¿Está seguro que desea eliminar este registro?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+
+                    $.ajax({
+                        url: '/ExperienciaLaboral/Eliminar',
+                        method: 'POST',
+                        data: form.serialize() + "&__RequestVerificationToken=" + token,
+                        success: function (result) {
+                            const contenedor = $('.opcion[data-url="/ExperienciaLaboral/Index"]').find('.contenido-parcial');
+                            contenedor.html(result);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Registro eliminado',
+                                confirmButtonColor: '#005D8F'
+                            });
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error al eliminar el registro',
+                                text: xhr.responseText
+                            });
+                        }
+                    });
+
+                }
+
+            });
+        });
+
+        //Crear Formación academica
+        $(document).on('submit', '#formCrearFormacionAcademica', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/FormacionAcademica/Crear',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    const contenedor = $('.opcion[data-url="/FormacionAcademica/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Antecedente academico agregada',
+                        confirmButtonColor: '#005D8F'
+                    });
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al agregar antecedente academico',
+                        text: xhr.responseText
+                    });
+                }
+            });
+        });
+
+        //Editar Formacion Academica
+        $(document).on('submit', '#formEditarFormacionAcademica', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            // Tomar los valores visibles
+            var nombreInstitucion = form.closest('tr').find('.input-nombre-institucion').val().trim();
+            var carrera = form.closest('tr').find('.input-carrera').val().trim();
+            var anhoInicio = form.closest('tr').find('.input-anho-inicio').val().trim();
+            var anhoTermino = form.closest('tr').find('.input-anho-termino').val().trim();
+            var tipoInstitucion = form.closest('tr').find('.input-tipo-institucion').val().trim();
+
+            // VALIDACIÓN CLIENTE
+            if (carrera  === "" && anhoInicio === "" && nombreInstitucion === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar un nombre una carrera y un año de inicio.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return; // NO enviar al servidor
+            } else if (anhoInicio  === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar un año de inicio.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return;
+            } else if (carrera === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar una carrera.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return;
+            }else if (nombreInstitucion  === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar un nombre.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return;
+            }
+
+            // Pasar valores a los inputs hidden del form
+            form.find('.hidden-anho-inicio').val(anhoInicio);
+            form.find('.hidden-anho-termino').val(anhoTermino);
+            form.find('.hidden-carrera').val(carrera);
+            form.find('.hidden-nombre-institucion').val(nombreInstitucion);
+            form.find('.hidden-tipo-institucion').val(tipoInstitucion);
+
+            // Token
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/FormacionAcademica/Editar',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Antecedente acdemico actualizado',
+                        confirmButtonColor: '#005D8F'
+                    });
+
+                    const contenedor = $('.opcion[data-url="/FormacionAcademica/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al editar el registro',
+                        text: xhr.responseText // ← esto déjalo así
+                    });
+                }
+            });
+        });
+
+        //Editar Descripción en FormacionAcademica
+        $(document).on('submit', '#formEditarDescripcionFa', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            // Tomar los valores visibles
+            var descripcion = form.closest('tr').find('.modal-descripcion-fa').val().trim();
+
+            // VALIDACIÓN CLIENTE
+            if (descripcion  === "") {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Campos requeridos',
+                    text: 'Debes ingresar una descripción antes de guardar.',
+                    confirmButtonColor: '#005D8F'
+                });
+                return; // NO enviar al servidor
+            }
+
+            // Token
+            var token = $('input[name="__RequestVerificationToken"]').val();
+
+            $.ajax({
+                url: '/FormacionAcademica/Editar',
+                method: 'POST',
+                data: form.serialize() + "&__RequestVerificationToken=" + token,
+                success: function (result) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Descripción actualizada',
+                        confirmButtonColor: '#005D8F'
+                    });
+
+                    const contenedor = $('.opcion[data-url="/FormacionAcademica/Index"]').find('.contenido-parcial');
+                    contenedor.html(result);
+                },
+                error: function (xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al editar la descripción',
+                        text: xhr.responseText // ← esto déjalo así
+                    });
+                }
+            });
+        });
+
+        //Eliminar FormacionAcademica
+        $(document).on('submit', '#formEliminarFormacionAcademica', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+
+            Swal.fire({
+                title: '¿Está seguro que desea eliminar este registro?',
+                text: 'Esta acción no se puede deshacer.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    var token = $('input[name="__RequestVerificationToken"]').val();
+
+                    $.ajax({
+                        url: '/FormacionAcademica/Eliminar',
+                        method: 'POST',
+                        data: form.serialize() + "&__RequestVerificationToken=" + token,
+                        success: function (result) {
+                            const contenedor = $('.opcion[data-url="/FormacionAcademica/Index"]').find('.contenido-parcial');
+                            contenedor.html(result);
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Registro eliminado',
+                                confirmButtonColor: '#005D8F'
+                            });
+                        },
+                        error: function (xhr) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error al eliminar el registro',
+                                text: xhr.responseText
+                            });
+                        }
+                    });
+
+                }
+
+            });
+        });
+        //Modales
+        $(document).on('hidden.bs.modal', function () {
+            $('.modal-backdrop').remove();
+            $('body').removeClass('modal-open');
+        });
+    </script>
+}
+
+
