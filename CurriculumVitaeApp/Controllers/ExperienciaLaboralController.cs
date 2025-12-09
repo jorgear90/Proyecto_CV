@@ -78,7 +78,7 @@ namespace CurriculumVitaeApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return View(experienciaLaboral);
+            return PartialView("Index", experienciaLaboral);
         }
 
         // GET: ExperienciaLaboral/Edit/5

@@ -77,7 +77,7 @@ namespace CurriculumVitaeApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["UsuarioID"] = new SelectList(_context.Usuarios, "Id", "Id", habilidad.UsuarioID);
-            return View(habilidad);
+            return PartialView("Index", habilidad);
         }
 
         // GET: Habilidades/Edit/5
@@ -155,7 +155,7 @@ namespace CurriculumVitaeApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View(habilidad);
+            return PartialView("Index", habilidad);
         }
 
         // POST: Habilidades/Delete/5

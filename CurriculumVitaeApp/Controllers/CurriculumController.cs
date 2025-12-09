@@ -26,11 +26,18 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         // GET: Curriculum/Details/5
-        public async Task<IActionResult> Detalles(int? id)
+        public async Task<IActionResult> Detalles()
         {
-            if (id == null)
+            /*if (id == null)
             {
                 return NotFound();
+            }*/
+
+            var token = Request.Cookies["jwtToken"];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login", "Usuarios");
             }
 
             /*var curriculum = await _context.Curriculum

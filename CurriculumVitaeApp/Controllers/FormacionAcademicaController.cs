@@ -89,7 +89,7 @@ namespace CurriculumVitaeApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewData["TipoInstitucionID"] = new SelectList(_context.tipoInstitucion, "ID", "Tipo", formacionAcademica.TipoInstitucionID);
-            return View(formacionAcademica);
+            return PartialView("Index", formacionAcademica);
         }
 
         // GET: FormacionAcademica/Edit/5

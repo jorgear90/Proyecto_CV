@@ -3,9 +3,10 @@
 
 @{
     ViewData["Title"] = "Index";
+    Layout = null;
 }
 
-<h1>Datos Básicos</h1>
+
 
 <style>
     .form-row {
@@ -14,9 +15,9 @@
         align-items: flex-end; /* alinea inputs y button abajo */
     }
 </style>
-
+<h3>Agregar datos básicos</h3>
 <div class="col-md-4">
-    <form id="formCrear" asp-action="Crear">
+    <form id="formCrearDato" asp-action="Crear">
         @Html.AntiForgeryToken()
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         <div class="form-row">
@@ -36,7 +37,7 @@
         </div>
     </form>
 </div>
-
+<h3>Datos básicos</h3>
 <table class="table">
     <thead>
         <tr>
@@ -53,21 +54,22 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                <input type="text" name="Nombre" class="form-control input-nombre" value="@item.Nombre" required />
+                <input type="text" name="Nombre" class="form-control input-nombre" value="@item.Nombre" data-original="@item.Nombre" required />
                 <span for="Nombre" class="text-danger"></span>
             </td>
             <td>
-                <input type="text" name="Valor" class="form-control input-valor" value="@item.Valor" required />
+                    <input type="text" name="Valor" class="form-control input-valor" value="@item.Valor" data-original="@item.Valor" required />
                 <span for="Valor" class="text-danger"></span>
             </td>
             <td>
-                <form asp-action="Editar" id="formEditar" method="post" class="edit-form">
+                <form asp-action="Editar" id="formEditarDato" method="post" class="edit-form">
                     <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
                     <input type="hidden" name="Nombre" class="hidden-nombre" />
                     <input type="hidden" name="Valor" class="hidden-valor" />
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
-                    <form asp-action="Eliminar" id="formEliminar" method="post" class="delete-form">
+                <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
+                <form asp-action="Eliminar" id="formEliminarDato" method="post" class="delete-form">
                     <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
                     <button type="submit" class="btn btn-danger">Eliminar</button>
                 </form>
@@ -77,16 +79,23 @@
     </tbody>
 </table>
 
-<div>
-    <a asp-controller="Home" asp-action="Index">Volver</a>
-</div>
-
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 }
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    $(document).on('click', '.btn-cancelar', function () {
+        const row = $(this).closest('tr');
+
+        const inputNombre = row.find('.input-nombre');
+        const inputValor = row.find('.input-valor');
+
+        // Restaurar desde data-original
+        inputNombre.val(inputNombre.data('original'));
+        inputValor.val(inputValor.data('original'));
+    });
+</script>

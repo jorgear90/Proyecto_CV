@@ -102,7 +102,7 @@ namespace CurriculumVitaeApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return PartialView(datosBasicos);
+            return PartialView("Index", datosBasicos);
         }
 
         // GET: DatosBasicos/Edit/5

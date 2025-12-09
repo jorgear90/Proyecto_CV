@@ -1,7 +1,7 @@
 ﻿@model CurriculumVitaeApp.Models.Curriculum
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Detalles";
 }
 
 <h1>Detalles</h1>
@@ -50,12 +50,29 @@
         }
 
         $(document).ready(function () {
+            // Función para abrir una opción específica
+            function abrirOpcion(opcionElement) {
+                const parent = opcionElement;
+                const contentContainer = parent.find('.contenido-parcial');
+                const url = parent.data('url');
+                const toggleButton = parent.find('.btn-toggle');
+
+                // Cierra las otras vistas parciales
+                $('.contenido-parcial').not(contentContainer).slideUp();
+                $('.btn-toggle').not(toggleButton).text('+');
+
+                // Carga y muestra la vista parcial
+                cargarVistaParcial(contentContainer, url);
+                toggleButton.text('–');
+            }
+
             $('.btn-toggle').click(function () {
                 const parent = $(this).closest('.opcion');
                 const contentContainer = parent.find('.contenido-parcial');
                 const url = parent.data('url');
                 const toggleButton = $(this);
 
+                // Cierra las otras vistas parciales
                 $('.contenido-parcial').not(contentContainer).slideUp();
                 $('.btn-toggle').not(toggleButton).text('+');
 
@@ -63,19 +80,22 @@
                     contentContainer.slideUp();
                     toggleButton.text('+');
                 } else {
-                    cargarVistaParcial(contentContainer, url);
-                    toggleButton.text('–');
+                    if (contentContainer.children().length > 0) {
+                        contentContainer.slideDown();
+                        toggleButton.text('–');
+                    } else {
+                        cargarVistaParcial(contentContainer, url);
+                        toggleButton.text('–');
+                    }
                 }
             });
 
-            const primeraOpcion = $('.opcion').first();
-            const primerBoton = primeraOpcion.find('.btn-toggle');
-            cargarVistaParcial(primeraOpcion.find('.contenido-parcial'), primeraOpcion.data('url'));
-            primerBoton.text('–');
+            // Abrir automáticamente "Datos Básicos" al cargar
+            abrirOpcion($('.opcion[data-url="/DatosBasicos/Index"]'));
         });
 
         //Crear un dato básico
-        $(document).on('submit', '#formCrear', function (e) {
+        $(document).on('submit', '#formCrearDato', function (e) {
             e.preventDefault();
             
             var form = $(this);
@@ -106,7 +126,7 @@
         });
 
         //Editar un dato básico
-        $(document).on('submit', '#formEditar', function (e) {
+        $(document).on('submit', '#formEditarDato', function (e) {
             e.preventDefault();
 
             var form = $(this);
@@ -158,7 +178,7 @@
         });
 
         //Eliminar Dato básico
-        $(document).on('submit', '#formEliminar', function (e) {
+        $(document).on('submit', '#formEliminarDato', function (e) {
             e.preventDefault();
 
             var form = $(this);
@@ -207,7 +227,7 @@
         });
 
         //Crear habilidad
-        $(document).on('submit', '#formCrear', function (e) {
+        $(document).on('submit', '#formCrearHabilidad', function (e) {
             e.preventDefault();
 
             var form = $(this);
@@ -437,53 +457,6 @@
             });
         });
 
-        //Editar Descripción en Experiencia laboral
-        $(document).on('submit', '#formEditarDescripcion', function (e) {
-            e.preventDefault();
-
-            var form = $(this);
-
-            // Tomar los valores visibles
-            var descripcion = form.closest('tr').find('.modal-descripcion').val().trim();
-
-            // VALIDACIÓN CLIENTE
-            if (descripcion  === "") {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Campos requeridos',
-                    text: 'Debes ingresar una descripción antes de guardar.',
-                    confirmButtonColor: '#005D8F'
-                });
-                return; // NO enviar al servidor
-            }
-
-            // Token
-            var token = $('input[name="__RequestVerificationToken"]').val();
-
-            $.ajax({
-                url: '/ExperienciaLaboral/Editar',
-                method: 'POST',
-                data: form.serialize() + "&__RequestVerificationToken=" + token,
-                success: function (result) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Descripción actualizada',
-                        confirmButtonColor: '#005D8F'
-                    });
-
-                    const contenedor = $('.opcion[data-url="/ExperienciaLaboral/Index"]').find('.contenido-parcial');
-                    contenedor.html(result);
-                },
-                error: function (xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error al editar la descripción',
-                        text: xhr.responseText // ← esto déjalo así
-                    });
-                }
-            });
-        });
-
         //Eliminar Antecedente laboral
         $(document).on('submit', '#formEliminarExperiencia', function (e) {
             e.preventDefault();
@@ -640,53 +613,6 @@
                     Swal.fire({
                         icon: 'error',
                         title: 'Error al editar el registro',
-                        text: xhr.responseText // ← esto déjalo así
-                    });
-                }
-            });
-        });
-
-        //Editar Descripción en FormacionAcademica
-        $(document).on('submit', '#formEditarDescripcionFa', function (e) {
-            e.preventDefault();
-
-            var form = $(this);
-
-            // Tomar los valores visibles
-            var descripcion = form.closest('tr').find('.modal-descripcion-fa').val().trim();
-
-            // VALIDACIÓN CLIENTE
-            if (descripcion  === "") {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Campos requeridos',
-                    text: 'Debes ingresar una descripción antes de guardar.',
-                    confirmButtonColor: '#005D8F'
-                });
-                return; // NO enviar al servidor
-            }
-
-            // Token
-            var token = $('input[name="__RequestVerificationToken"]').val();
-
-            $.ajax({
-                url: '/FormacionAcademica/Editar',
-                method: 'POST',
-                data: form.serialize() + "&__RequestVerificationToken=" + token,
-                success: function (result) {
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Descripción actualizada',
-                        confirmButtonColor: '#005D8F'
-                    });
-
-                    const contenedor = $('.opcion[data-url="/FormacionAcademica/Index"]').find('.contenido-parcial');
-                    contenedor.html(result);
-                },
-                error: function (xhr) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error al editar la descripción',
                         text: xhr.responseText // ← esto déjalo así
                     });
                 }
