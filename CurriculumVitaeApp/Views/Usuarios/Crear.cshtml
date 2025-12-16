@@ -1,16 +1,8 @@
 ﻿@model CurriculumVitaeApp.Models.Usuario
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CurriculumVitaeApp.styles.css" asp-append-version="true" />
-</head>
-
 @{
-    Layout = null;
-    ViewData["Title"] = "Create";
+    Layout = "_LayoutPublic";
+    ViewData["Title"] = "CrearUsuario";
 }
 
 <h1>Crear usuario</h1>
@@ -51,33 +43,26 @@
     <a asp-action="Login">Volver a Login</a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-@if (TempData["Creado"] != null)
-{
-    <script>
-        Swal.fire({
-            icon: 'success',
-            title: 'Usuario creado',
-            text: 'El usuario se ha creado con éxito.',
-            confirmButtonColor: '#005D8F',
-            allowOutsideClick: false,
-            allowEscapeKey: false
-        }).then(() => {
-            // ✅ Redirige automáticamente al login
-            window.location.href = '@Url.Action("Login", "Usuarios")';
-        });
-    </script>
-}
+
+
+
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Traducción al español -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/localization/messages_es.min.js"></script>
+
+    <script src="~/js/vista-crear-usuario.js"></script>
+    @if (TempData["Creado"] != null)
+    {
+        <script>
+            window.usuarioCreado = true;
+            window.loginUrl = '@Url.Action("Login", "Usuarios")';
+        </script>
+    }
    
 }
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
-<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
 
-<!-- Traducción al español -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/localization/messages_es.min.js"></script>
 

@@ -78,6 +78,7 @@ namespace CurriculumVitaeApp.Controllers
             return View();
         }
 
+        //Método que genera el token cuando el usuario se loguea correctamente
         private string GenerarJwtToken(string correo)
         {
             var jwtSettings = _config.GetSection("Jwt");
@@ -102,12 +103,14 @@ namespace CurriculumVitaeApp.Controllers
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        //Dto utilizada para facilitar el manejo de la autentificación
         public class AuthDto
         {
             public string Correo { get; set; }
             public string Password { get; set; }
         }
 
+        //Dto que facilita la correcta creación de un usuario
         public class CreateUsuarioDto
         {
             public string Correo { get; set; }
@@ -153,7 +156,7 @@ namespace CurriculumVitaeApp.Controllers
 
                 TempData["Creado"] = true;
 
-                return RedirectToAction("Create");
+                return RedirectToAction("Crear");
             }
             ViewBag.Mensaje = "Error al crear al usuario.";
             return View();
@@ -218,20 +221,20 @@ namespace CurriculumVitaeApp.Controllers
                 new DatosBasicos
                 {
                     UsuarioID = usuarioId,
-                    Nombre = "Nombre",
-                    Valor = "Tu nombre"
+                    NombreDato = "Nacionalidad",
+                    ValorDato = "Tu nacionalidad"
                 },
                 new DatosBasicos
                 {
                     UsuarioID = usuarioId,
-                    Nombre = "Apellido",
-                    Valor = "Tu apellido"
+                    NombreDato = "Domicilio",
+                    ValorDato = "Tu domicilio"
                 },
                 new DatosBasicos
                 {
                     UsuarioID = usuarioId,
-                    Nombre = "Número",
-                    Valor = "Tu número de teléfono"
+                    NombreDato = "Número",
+                    ValorDato = "Tu número de teléfono"
                 }
             };
 

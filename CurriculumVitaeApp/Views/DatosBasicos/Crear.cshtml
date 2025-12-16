@@ -12,14 +12,14 @@
         <form asp-action="Crear" id="formCrear">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" required/>
-                <span asp-validation-for="Nombre" class="text-danger"></span>
+                <label asp-for="NombreDato" class="control-label"></label>
+                <input asp-for="NombreDato" class="form-control" required />
+                <span asp-validation-for="NombreDato" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="Valor" class="control-label"></label>
-                <input asp-for="Valor" class="form-control" required />
-                <span asp-validation-for="Valor" class="text-danger"></span>
+                <label asp-for="ValorDato" class="control-label"></label>
+                <input asp-for="ValorDato" class="form-control" required />
+                <span asp-validation-for="ValorDato" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" onclick="confirmarCreacion(event)" value="Crear" class="btn btn-success btn-sm" />
@@ -36,27 +36,5 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function confirmarCreacion(event) {
-            event.preventDefault();
-
-            var form = $("#formCrear");
-
-            if (!form.valid()) {
-                return;
-            }
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Registro creado',
-                text: 'El registro se ha creado con éxito.',
-                confirmButtonColor: '#005D8F',
-                allowOutsideClick: false,
-                allowEscapeKey: false
-            }).then(() => {
-                document.getElementById('submitButtonHidden').value = 'crear';
-                document.getElementById('formCrear').submit();
-            });
-        }
-    </script>
+    <script src="~/js/vistas-crear.js"></script>
 }

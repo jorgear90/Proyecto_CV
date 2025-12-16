@@ -21,6 +21,11 @@
                 <span asp-validation-for="NombreInstitucion" class="text-danger"></span>
             </div>
             <div class="form-group">
+                <label asp-for="Ciudad" class="control-label"></label>
+                <input asp-for="Ciudad" class="form-control" required />
+                <span asp-validation-for="Ciudad" class="text-danger"></span>
+            </div>
+            <div class="form-group">
                 <label asp-for="Carrera" class="control-label"></label>
                 <input asp-for="Carrera" class="form-control" required/>
                 <span asp-validation-for="Carrera" class="text-danger"></span>
@@ -57,27 +62,5 @@
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-        function confirmarCreacion(event) {
-            event.preventDefault();
-
-            var form = $("#formCrear");
-
-            if (!form.valid()) {
-                return;
-            }
-
-            Swal.fire({
-                icon: 'success',
-                title: 'Registro creado',
-                text: 'El registro se ha creado con éxito.',
-                confirmButtonColor: '#005D8F',
-                allowOutsideClick: false,
-                allowEscapeKey: false
-            }).then(() => {
-                document.getElementById('submitButtonHidden').value = 'crear';
-                document.getElementById('formCrear').submit();
-            });
-        }
-    </script>
+    <script src="~/js/vistas-crear.js"></script>
 }

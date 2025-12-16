@@ -1,0 +1,22 @@
+﻿/* Estilos para las vistas parciales de Curriculum
+    SelectorConocimientos
+    SelectorDatosBasicos
+    SelectorExperienciaLaboral
+    SelectorFormacionAcademica
+    SelectorHabilidad
+*/
+.chk-item, #select-all {
+    cursor: pointer;
+    transform: scale(1.2);
+    margin: 0;
+}
+
+.item-row:hover {
+    background-color: #f8f9fa;
+}
+
+#selection-counter {
+    font-size: 14px;
+    padding: 5px 10px;
+    border-radius: 10px;
+}

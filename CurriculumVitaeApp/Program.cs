@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using CurriculumVitaeApp.Helpers;
+using QuestPDF.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,8 @@ builder.Services.AddMvc(options =>
     options.ModelBindingMessageProvider.SetValueMustNotBeNullAccessor(
         _ => "El campo es obligatorio");
 });
+
+QuestPDF.Settings.License = LicenseType.Community;
 
 var app = builder.Build();
 
