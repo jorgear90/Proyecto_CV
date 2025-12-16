@@ -43,7 +43,7 @@ namespace CurriculumVitaeApp.Controllers
 
             var idUsuario = await _context.Usuarios.Where(u => u.Correo == correo).Select(u => u.Id).FirstOrDefaultAsync();
 
-            var datosBasicos = _context.Perfil.Include(d => d.Usuarios).Where(d => d.UsuarioID == idUsuario);
+            var datosBasicos = _context.DatosBasicos.Include(d => d.Usuarios).Where(d => d.UsuarioID == idUsuario);
             return View(await datosBasicos.ToListAsync());
         }
 
@@ -56,14 +56,9 @@ namespace CurriculumVitaeApp.Controllers
                 return RedirectToAction("Login", "Usuarios");
 
             return View();
-
-            /*<div class="form-group">
-                <input type="hidden" asp-for="UsuarioID" />
-                <input type="text" name="idUsuario" value="@ViewBag.idUsuario" />
-                <span asp-validation-for="UsuarioID" class="text-danger"></span>
-            </div>*/
         }
 
+        //Este método permite obtener el id del usuario por medio del token
         public async Task<int> getIdUsuario()
         {
             var token = Request.Cookies["jwtToken"];
@@ -90,7 +85,7 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,Nombre,Valor")] DatosBasicos datosBasicos)
+        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,NombreDato,ValorDato")] DatosBasicos datosBasicos)
         {
             var idUsuario = await getIdUsuario();
 
@@ -102,44 +97,14 @@ namespace CurriculumVitaeApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return PartialView("Index", datosBasicos);
+            return View(datosBasicos);
         }
-
-        // GET: DatosBasicos/Edit/5
-        public async Task<IActionResult> Editar(string id)
-        {
-            var token = Request.Cookies["jwtToken"];
-
-            if (string.IsNullOrEmpty(token))
-            {
-                return RedirectToAction("Login", "Usuarios");
-            }
-
-            int realId;
-
-            try
-            {
-                realId = _idProtector.DecryptId(id);
-            }
-            catch
-            {
-                return BadRequest("ID inválido");
-            }
-
-            var datoBasico = await _context.Perfil.FindAsync(realId);
-            if (datoBasico == null) return NotFound();
-
-            ViewBag.EncryptedId = id;
-
-            return View(datoBasico);
-        }
-
 
         // POST: DatosBasicos/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public async Task<IActionResult> Editar(string idEditar, [Bind("Nombre,Valor")] DatosBasicos datosBasicos)
+        public async Task<IActionResult> Editar(string idEditar, [Bind("NombreDato,ValorDato")] DatosBasicos datosBasicos)
         {
             var idUsuario = await getIdUsuario();
 
@@ -161,10 +126,10 @@ namespace CurriculumVitaeApp.Controllers
             {
                 try
                 {
-                    var registroEditado = await _context.Perfil.Where(p => p.Id == datosBasicos.Id).FirstOrDefaultAsync();
+                    var registroEditado = await _context.DatosBasicos.Where(p => p.Id == datosBasicos.Id).FirstOrDefaultAsync();
 
-                    registroEditado.Nombre = datosBasicos.Nombre;
-                    registroEditado.Valor = datosBasicos.Valor;
+                    registroEditado.NombreDato = datosBasicos.NombreDato;
+                    registroEditado.ValorDato = datosBasicos.ValorDato;
 
                     _context.Update(registroEditado);
                     await _context.SaveChangesAsync();
@@ -182,15 +147,7 @@ namespace CurriculumVitaeApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return PartialView("Index", datosBasicos);
-        }
-
-        public class EditDto
-        {
-            public int Id { get; set; }
-            public string Nombre { get; set; }
-            public string Descripcion { get; set; }
-
+            return View("Index", datosBasicos);
         }
 
         // POST: DatosBasicos/Delete/5
@@ -208,10 +165,10 @@ namespace CurriculumVitaeApp.Controllers
                 return BadRequest("ID inválido");
             }
 
-            var datosBasicos = await _context.Perfil.FindAsync(realId);
+            var datosBasicos = await _context.DatosBasicos.FindAsync(realId);
             if (datosBasicos != null)
             {
-                _context.Perfil.Remove(datosBasicos);
+                _context.DatosBasicos.Remove(datosBasicos);
             }
 
             await _context.SaveChangesAsync();
@@ -220,7 +177,7 @@ namespace CurriculumVitaeApp.Controllers
 
         private bool DatosBasicosExists(int id)
         {
-            return _context.Perfil.Any(e => e.Id == id);
+            return _context.DatosBasicos.Any(e => e.Id == id);
         }
     }
 }

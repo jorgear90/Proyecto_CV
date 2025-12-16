@@ -4,6 +4,7 @@ using CurriculumVitaeApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CurriculumVitaeApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251216191444_Correcion-Nombres-Atributos-DatosBasicos")]
+    partial class CorrecionNombresAtributosDatosBasicos
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,8 +84,6 @@ namespace CurriculumVitaeApp.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CurriculumID");
 
                     b.ToTable("CurriculumSeleccion");
                 });
@@ -300,17 +301,6 @@ namespace CurriculumVitaeApp.Migrations
                     b.Navigation("Usuarios");
                 });
 
-            modelBuilder.Entity("CurriculumVitaeApp.Models.CurriculumSeleccion", b =>
-                {
-                    b.HasOne("CurriculumVitaeApp.Models.Curriculum", "Curriculums")
-                        .WithMany("CurriculumsSelecciones")
-                        .HasForeignKey("CurriculumID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Curriculums");
-                });
-
             modelBuilder.Entity("CurriculumVitaeApp.Models.DatosBasicos", b =>
                 {
                     b.HasOne("CurriculumVitaeApp.Models.Usuario", "Usuarios")
@@ -372,11 +362,6 @@ namespace CurriculumVitaeApp.Migrations
                         .IsRequired();
 
                     b.Navigation("Usuarios");
-                });
-
-            modelBuilder.Entity("CurriculumVitaeApp.Models.Curriculum", b =>
-                {
-                    b.Navigation("CurriculumsSelecciones");
                 });
 
             modelBuilder.Entity("CurriculumVitaeApp.Models.TipoInstitucion", b =>

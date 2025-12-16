@@ -13,18 +13,18 @@ using System.Security.Claims;
 
 namespace CurriculumVitaeApp.Controllers
 {
-    public class HabilidadesController : Controller
+    public class ConocimientosController : Controller
     {
         private readonly AppDbContext _context;
         private readonly IdProtector _idProtector;
 
-        public HabilidadesController(AppDbContext context, IdProtector idProtector)
+        public ConocimientosController(AppDbContext context, IdProtector idProtector)
         {
             _context = context;
             _idProtector = idProtector;
         }
 
-        // GET: Habilidades
+        // GET: Conocimientos
         public async Task<IActionResult> Index()
         {
             var token = Request.Cookies["jwtToken"];
@@ -43,9 +43,9 @@ namespace CurriculumVitaeApp.Controllers
 
             var idUsuario = await _context.Usuarios.Where(u => u.Correo == correo).Select(u => u.Id).FirstOrDefaultAsync();
 
-            var habilidades = _context.Habilidades.Include(d => d.Usuarios).Where(d => d.UsuarioID == idUsuario);
+            var conocimientos = _context.Conocimientos.Include(d => d.Usuarios).Where(d => d.UsuarioID == idUsuario);
 
-            return View(await habilidades.ToListAsync());
+            return View(await conocimientos.ToListAsync());
         }
 
         // GET: Habilidades/Create
@@ -60,31 +60,32 @@ namespace CurriculumVitaeApp.Controllers
             return View();
         }
 
-        // POST: Habilidades/Create
+        // POST: Conocimientos/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,Descripcion")] Habilidad habilidad)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,Descripcion")] Conocimiento conocimiento)
         {
             var idUsuario = await getIdUsuario();
 
-            habilidad.UsuarioID = idUsuario;
+            conocimiento.UsuarioID = idUsuario;
 
             if (ModelState.IsValid)
             {
-                _context.Add(habilidad);
+                _context.Add(conocimiento);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["UsuarioID"] = new SelectList(_context.Usuarios, "Id", "Id", habilidad.UsuarioID);
-            return View(habilidad);
+            ViewData["UsuarioID"] = new SelectList(_context.Usuarios, "Id", "Id", conocimiento.UsuarioID);
+            return View(conocimiento);
         }
-    
-        // POST: Habilidades/Edit/5
+
+        // POST: Conocimientos/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public async Task<IActionResult> Editar(string idEditar, [Bind("Descripcion")] Habilidad habilidad)
+        public async Task<IActionResult> Editar(string idEditar, [Bind("Descripcion")] Conocimiento conocimiento)
         {
             var idUsuario = await getIdUsuario();
 
@@ -99,19 +100,19 @@ namespace CurriculumVitaeApp.Controllers
                 return BadRequest("ID inválido");
             }
 
-            habilidad.Id = realId;
-            habilidad.UsuarioID = idUsuario;
+            conocimiento.Id = realId;
+            conocimiento.UsuarioID = idUsuario;
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(habilidad);
+                    _context.Update(conocimiento);
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!HabilidadExists(habilidad.Id))
+                    if (!ConocimientoExists(conocimiento.Id))
                     {
                         return NotFound();
                     }
@@ -123,11 +124,12 @@ namespace CurriculumVitaeApp.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            return View("Index", habilidad);
+            return View("Index", conocimiento);
         }
 
-        // POST: Habilidades/Delete/5
+        // POST: Conocimientos/Delete/5
         [HttpPost, ActionName("Eliminar")]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
             int realId;
@@ -141,10 +143,10 @@ namespace CurriculumVitaeApp.Controllers
                 return BadRequest("ID inválido");
             }
 
-            var habilidad = await _context.Habilidades.FindAsync(realId);
-            if (habilidad != null)
+            var conocimiento = await _context.Conocimientos.FindAsync(realId);
+            if (conocimiento != null)
             {
-                _context.Habilidades.Remove(habilidad);
+                _context.Conocimientos.Remove(conocimiento);
             }
 
             await _context.SaveChangesAsync();
@@ -174,9 +176,9 @@ namespace CurriculumVitaeApp.Controllers
 
         }
 
-        private bool HabilidadExists(int id)
+        private bool ConocimientoExists(int id)
         {
-            return _context.Habilidades.Any(e => e.Id == id);
+            return _context.Conocimientos.Any(e => e.Id == id);
         }
     }
 }

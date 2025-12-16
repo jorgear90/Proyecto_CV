@@ -15,6 +15,8 @@ namespace CurriculumVitaeApp.Models
         [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
         public string NombreInstitucion { get; set; }
         [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
+        public string Ciudad { get; set; }
+        [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
         public string Carrera { get; set; }
         [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
         [Display(Name = "Año de inicio")]

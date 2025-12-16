@@ -3,10 +3,8 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = null;
 }
 
-<h3>Crear antecedente laboral</h3>
 <div class="modal fade" id="modalDescripcion" tabindex="-1" aria-labelledby="modalDescripcionLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -15,13 +13,13 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditarDescripcion" method="post" asp-action="Editar">
+                <form id="formEditarDescripcionEL" method="post" asp-action="Editar">
                     <input type="hidden" name="idEditar" id="modal-id-editar-ex" />
                     <div class="form-group">
                         <label>Descripción</label>
                         <textarea name="Descripcion" id="modal-descripcion" class="form-control" rows="5" required></textarea>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
+                    <button type="button" class="btn btn-secondary btn-cancelar-modal-el">Cancelar</button>
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
             </div>
@@ -32,37 +30,11 @@
     </div>
 </div>
 
-<div class="col-md-4">
-    <form id="formCrearExperienciaLaboral" asp-action="Crear">
-        @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="form-group">
-            <label class="control-label"> Fecha de inicio</label>
-            <input type="date" name="fechaInicio" class="form-control" required />
-            <span class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label class="control-label">Fecha de termino</label>
-            <input type="date" name="fechaTermino" class="form-control" />
-            <span class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label class="control-label">Empresa</label>
-            <input name="Empresa" class="form-control" required />
-            <span  class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <label class="control-label">Descripción</label>
-            <textarea textarea type="text" name="Descripcion" class="form-control" required></textarea>
-            <span class="text-danger"></span>
-        </div>
-        <div class="form-group">
-            <input type="submit" value="Crear" class="btn btn-success btn-sm" />
-        </div>
-    </form>
-</div>
+<p>
+    <a asp-action="Crear">Crea un antecedente laboral</a>
+</p>
 
-<h3>Antecedentes laborales</h3>
+<h3>Experiencia laboral</h3>
 <table class="table">
     <thead>
         <tr>
@@ -95,7 +67,7 @@
                 <input type="date" name="FechaTermino" class="form-control input-fecha-termino" value="@(item.FechaTermino?.ToString("yyyy-MM-dd"))" data-original="@(item.FechaTermino?.ToString("yyyy-MM-dd"))" required />
                 <span for="FechaTermino" class="text-danger"></span>
             </td>
-            <td>
+            <td class="td-vigente" data-id="@IdProtector.EncryptId(item.Id)">
                 @Html.DisplayFor(modelItem => item.Vigente)
             </td>
             <td>
@@ -111,18 +83,17 @@
                 </span>
             </td>
             <td>
-                
-                <form asp-action="Editar" id="formEditarExperienciaLaboral" method="post" class="edit-form">
+                    <form asp-action="Editar" method="post" class="edit-form-experiencia-laboral">
                     <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
-                    <input type="hidden" name="FechaInicio" class="hidden-fecha-inicio" />
-                    <input type="hidden" name="FechaTermino" class="hidden-fecha-termino" />
-                    <input type="hidden" name="Empresa" class="hidden-empresa" />
+                        <input type="hidden" name="FechaInicio" class="hidden-fecha-inicio" />
+                        <input type="hidden" name="FechaTermino" class="hidden-fecha-termino" />
+                        <input type="hidden" name="Empresa" class="hidden-empresa" />
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
-                <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
-                <form asp-action="Delete" id="formEliminarExperiencia" method="post" class="delete-form">
+                <button type="button" class="btn btn-secondary btn-cancelar-el">Cancelar</button>
+                <form asp-action="Eliminar" id="formEliminarExperiencia" method="post" class="delete-form">
                     <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
-                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                    <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
                 </form>
             </td>
         </tr>
@@ -130,102 +101,17 @@
     </tbody>
 </table>
 
-<script>
-    $(document).on('click', '.descripcion-clickable-el', function () {
-        const descripcion = $(this).data('descripcion');
-        const id = $(this).data('id');
+<div>
+    <a asp-controller="Home" asp-action="Index">Volver</a>
+</div>
 
-        const modal = $('#modalDescripcion');
-        modal.find('#modal-descripcion').val(descripcion);
-        modal.find('#modal-id-editar-ex').val(id);
-
-        modal.find('#modal-descripcion').data('original',descripcion);
-
-        modal.modal('show');
-    });
-
-    $(document).on('click', '.btn-cancelar', function () {
-        const textarea = $("#modal-descripcion");
-
-        // Restaurar desde data-original
-        const original = textarea.data('original');
-
-        textarea.val(original);
-    });
-
-    $(document).on('click', '.btn-cancelar', function () {
-        const row = $(this).closest('tr');
-
-        const inputFechaInicio = row.find('.input-fecha-inicio');
-        const inputFechaTermino = row.find('.input-fecha-termino');
-        const inputEmpresa = row.find('.input-empresa');
-
-        // Restaurar desde data-original
-        inputFechaInicio.val(inputFechaInicio.data('original'));
-        inputFechaTermino.val(inputFechaTermino.data('original'));
-        inputEmpresa.val(inputEmpresa.data('original'));
-    });
-
-    function confirmarEliminacion(event) {
-        event.preventDefault();
-
-        Swal.fire({
-            title: '¿Está seguro que desea eliminar este registro?',
-            text: 'Esta acción no se puede deshacer.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Registro eliminado',
-                    text: 'El registro se ha eliminado con éxito.',
-                    confirmButtonColor: '#005D8F',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                }).then(() => {
-                    document.getElementById('submitButtonHidden').value = 'eliminar';
-                    event.target.closest('form').submit();
-                });
-            }
-
-        });
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
-    $(document).on('submit', '#formEditarDescripcion', function (e) {
-        e.preventDefault();
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/vistas-index.js"></script>
 
-        $.ajax({
-            url: '/ExperienciaLaboral/Editar',
-            method: 'POST',
-            data: $(this).serialize(),
-            success: function (result) {
+}
 
-                // Cerrar modal
-                $('#modalDescripcion').modal('hide');
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Descripción actualizada',
-                    confirmButtonColor: '#005D8F'
-                });
-
-                // Recargar parcial si es necesario:
-                const contenedor = $('.opcion[data-url="/ExperienciaLaboral/Index"]').find('.contenido-parcial');
-                contenedor.html(result);
-            },
-            error: function (xhr) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error al guardar descripción',
-                    text: xhr.responseText
-                });
-            }
-        });
-    });
-
-</script>

@@ -46,7 +46,7 @@ namespace CurriculumVitaeApp.Controllers
 
             var antecedentesAcademicos = _context.FormacionAcademica.Include(d => d.TipoInstitucion).Where(d => d.UsuarioID == idUsuario);
 
-            ViewData["TipoInstitucionID"] = new SelectList(_context.tipoInstitucion, "ID", "Tipo");
+            ViewData["TipoInstitucionID"] = new SelectList(_context.TipoInstitucion, "ID", "Tipo");
 
             return View(await antecedentesAcademicos.ToListAsync());
         }
@@ -60,7 +60,7 @@ namespace CurriculumVitaeApp.Controllers
                 return RedirectToAction("Login", "Usuarios");
 
             ViewBag.idUsuario = idUsuario;
-            ViewData["TipoInstitucionID"] = new SelectList(_context.tipoInstitucion, "ID", "Tipo");
+            ViewData["TipoInstitucionID"] = new SelectList(_context.TipoInstitucion, "ID", "Tipo");
 
             return View();
         }
@@ -69,7 +69,7 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,TipoInstitucionID,NombreInstitucion,Carrera,AnhoInicio,AnhoTermino,Vigente,Descripcion")] CurriculumVitaeApp.Models.FormacionAcademica formacionAcademica)
+        public async Task<IActionResult> Crear([Bind("Id,UsuarioID,TipoInstitucionID,NombreInstitucion,Ciudad,Carrera,AnhoInicio,AnhoTermino,Vigente,Descripcion")] CurriculumVitaeApp.Models.FormacionAcademica formacionAcademica)
         {
             var idUsuario = await getIdUsuario();
 
@@ -88,40 +88,7 @@ namespace CurriculumVitaeApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["TipoInstitucionID"] = new SelectList(_context.tipoInstitucion, "ID", "Tipo", formacionAcademica.TipoInstitucionID);
-            return PartialView("Index", formacionAcademica);
-        }
-
-        // GET: FormacionAcademica/Edit/5
-        public async Task<IActionResult> Editar(string id)
-        {
-            var token = Request.Cookies["jwtToken"];
-
-            if (string.IsNullOrEmpty(token))
-            {
-                return RedirectToAction("Login", "Usuarios");
-            }
-
-            int realId;
-
-            try
-            {
-                realId = _idProtector.DecryptId(id);
-            }
-            catch
-            {
-                return BadRequest("ID inválido");
-            }
-
-            var formacionAcademica = await _context.FormacionAcademica.FindAsync(realId);
-            if (formacionAcademica == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.EncryptedId = id;
-            ViewData["TipoInstitucionID"] = new SelectList(_context.tipoInstitucion, "ID", "Tipo", formacionAcademica.TipoInstitucionID);
-
+            ViewData["TipoInstitucionID"] = new SelectList(_context.TipoInstitucion, "ID", "Tipo", formacionAcademica.TipoInstitucionID);
             return View(formacionAcademica);
         }
 
@@ -129,7 +96,7 @@ namespace CurriculumVitaeApp.Controllers
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        public async Task<IActionResult> Editar(string idEditar, [Bind("TipoInstitucionID,NombreInstitucion,Carrera,AnhoInicio,AnhoTermino,Descripcion")] CurriculumVitaeApp.Models.FormacionAcademica formacionAcademica)
+        public async Task<IActionResult> Editar(string idEditar, [Bind("TipoInstitucionID,NombreInstitucion,Ciudad,Carrera,AnhoInicio,AnhoTermino,Descripcion")] CurriculumVitaeApp.Models.FormacionAcademica formacionAcademica)
         {
             var idUsuario = await getIdUsuario();
 
@@ -164,20 +131,22 @@ namespace CurriculumVitaeApp.Controllers
                 formacionAcademica.AnhoInicio = registroExistente.AnhoInicio;
                 formacionAcademica.AnhoTermino = registroExistente.AnhoTermino;
                 formacionAcademica.Carrera = registroExistente.Carrera;
+                formacionAcademica.Ciudad = registroExistente.Ciudad;
                 formacionAcademica.NombreInstitucion = registroExistente.NombreInstitucion;
                 formacionAcademica.TipoInstitucionID = registroExistente.TipoInstitucionID;
                 ModelState.Remove("AnhoInicio");
                 ModelState.Remove("NombreInstitucion");
                 ModelState.Remove("Carrera");
+                ModelState.Remove("Ciudad");
             }
 
             if (!ModelState.IsValid)
-                return PartialView("Index", formacionAcademica);
+                return View(nameof(Index));
 
             registroExistente.AnhoInicio = formacionAcademica.AnhoInicio;
             registroExistente.AnhoTermino = formacionAcademica.AnhoTermino;
             registroExistente.NombreInstitucion = formacionAcademica.NombreInstitucion;
-            registroExistente.Carrera = formacionAcademica.Carrera;
+            registroExistente.Ciudad = formacionAcademica.Ciudad;
             registroExistente.Descripcion = formacionAcademica.Descripcion;
             registroExistente.TipoInstitucionID = formacionAcademica.TipoInstitucionID;
             registroExistente.UsuarioID = idUsuario;
@@ -189,7 +158,7 @@ namespace CurriculumVitaeApp.Controllers
             // Guardar cambios
             await _context.SaveChangesAsync();
 
-            ViewData["TipoInstitucionID"] = new SelectList(_context.tipoInstitucion, "ID", "Tipo", formacionAcademica.TipoInstitucionID);
+            ViewData["TipoInstitucionID"] = new SelectList(_context.TipoInstitucion, "ID", "Tipo", formacionAcademica.TipoInstitucionID);
 
             return RedirectToAction(nameof(Index));
         }
@@ -219,6 +188,7 @@ namespace CurriculumVitaeApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        //Este método permite obtener el id del usuario por medio del token
         public async Task<int> getIdUsuario()
         {
             var token = Request.Cookies["jwtToken"];

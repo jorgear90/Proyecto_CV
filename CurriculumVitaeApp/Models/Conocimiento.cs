@@ -1,20 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using CurriculumVitaeApp.Helpers;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
-using CurriculumVitaeApp.Helpers;
 
 namespace CurriculumVitaeApp.Models
 {
-    public partial class DatosBasicos
+    public partial class Conocimiento
     {
         [Key]
         public int Id { get; set; }
         public int UsuarioID { get; set; }
         [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
-        [Display(Name = "Dato")]
-        public string NombreDato { get; set; }
-        [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
-        [Display(Name = "Valor")]
-        public string ValorDato { get; set; }
+        [Display(Name = "Descripción")]
+        public string Descripcion { get; set; }
 
         //Clave foranea
         [ForeignKey(nameof(UsuarioID))]

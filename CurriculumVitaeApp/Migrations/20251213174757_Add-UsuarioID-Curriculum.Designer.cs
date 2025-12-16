@@ -4,6 +4,7 @@ using CurriculumVitaeApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CurriculumVitaeApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251213174757_Add-UsuarioID-Curriculum")]
+    partial class AddUsuarioIDCurriculum
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,8 +85,6 @@ namespace CurriculumVitaeApp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CurriculumID");
-
                     b.ToTable("CurriculumSeleccion");
                 });
 
@@ -95,14 +96,14 @@ namespace CurriculumVitaeApp.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("NombreDato")
+                    b.Property<string>("Nombre")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("UsuarioID")
                         .HasColumnType("int");
 
-                    b.Property<string>("ValorDato")
+                    b.Property<string>("Valor")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -110,29 +111,7 @@ namespace CurriculumVitaeApp.Migrations
 
                     b.HasIndex("UsuarioID");
 
-                    b.ToTable("DatosBasicos");
-                });
-
-            modelBuilder.Entity("CurriculumVitaeApp.Models.EncabezadoCurriculum", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("UsuarioID")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ValorEncabezado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UsuarioID");
-
-                    b.ToTable("Encabezados");
+                    b.ToTable("Perfil");
                 });
 
             modelBuilder.Entity("CurriculumVitaeApp.Models.ExperienciaLaboral", b =>
@@ -167,7 +146,7 @@ namespace CurriculumVitaeApp.Migrations
 
                     b.HasIndex("UsuarioID");
 
-                    b.ToTable("ExperienciaLaboral");
+                    b.ToTable("AntecedentesLaborales");
                 });
 
             modelBuilder.Entity("CurriculumVitaeApp.Models.FormacionAcademica", b =>
@@ -254,7 +233,7 @@ namespace CurriculumVitaeApp.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("TipoInstitucion");
+                    b.ToTable("tipoInstitucion");
                 });
 
             modelBuilder.Entity("CurriculumVitaeApp.Models.Usuario", b =>
@@ -300,32 +279,10 @@ namespace CurriculumVitaeApp.Migrations
                     b.Navigation("Usuarios");
                 });
 
-            modelBuilder.Entity("CurriculumVitaeApp.Models.CurriculumSeleccion", b =>
-                {
-                    b.HasOne("CurriculumVitaeApp.Models.Curriculum", "Curriculums")
-                        .WithMany("CurriculumsSelecciones")
-                        .HasForeignKey("CurriculumID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Curriculums");
-                });
-
             modelBuilder.Entity("CurriculumVitaeApp.Models.DatosBasicos", b =>
                 {
                     b.HasOne("CurriculumVitaeApp.Models.Usuario", "Usuarios")
                         .WithMany("DatosBasicos")
-                        .HasForeignKey("UsuarioID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Usuarios");
-                });
-
-            modelBuilder.Entity("CurriculumVitaeApp.Models.EncabezadoCurriculum", b =>
-                {
-                    b.HasOne("CurriculumVitaeApp.Models.Usuario", "Usuarios")
-                        .WithMany("Encabezados")
                         .HasForeignKey("UsuarioID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -374,11 +331,6 @@ namespace CurriculumVitaeApp.Migrations
                     b.Navigation("Usuarios");
                 });
 
-            modelBuilder.Entity("CurriculumVitaeApp.Models.Curriculum", b =>
-                {
-                    b.Navigation("CurriculumsSelecciones");
-                });
-
             modelBuilder.Entity("CurriculumVitaeApp.Models.TipoInstitucion", b =>
                 {
                     b.Navigation("FormacionAcademica");
@@ -391,8 +343,6 @@ namespace CurriculumVitaeApp.Migrations
                     b.Navigation("Curriculums");
 
                     b.Navigation("DatosBasicos");
-
-                    b.Navigation("Encabezados");
 
                     b.Navigation("ExperienciaLaboral");
 

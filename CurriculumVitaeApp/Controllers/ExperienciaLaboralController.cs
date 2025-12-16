@@ -38,7 +38,7 @@ namespace CurriculumVitaeApp.Controllers
 
             var idUsuario = await _context.Usuarios.Where(u => u.Correo == correo).Select(u => u.Id).FirstOrDefaultAsync();
 
-            var antecedentesLaborales = _context.AntecedentesLaborales.Include(d => d.Usuarios).Where(d => d.UsuarioID == idUsuario);
+            var antecedentesLaborales = _context.ExperienciaLaboral.Include(d => d.Usuarios).Where(d => d.UsuarioID == idUsuario);
 
             return View(await antecedentesLaborales.ToListAsync());
         }
@@ -78,36 +78,7 @@ namespace CurriculumVitaeApp.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            return PartialView("Index", experienciaLaboral);
-        }
-
-        // GET: ExperienciaLaboral/Edit/5
-        public async Task<IActionResult> Editar(string id)
-        {
-            var token = Request.Cookies["jwtToken"];
-
-            if (string.IsNullOrEmpty(token))
-            {
-                return RedirectToAction("Login", "Usuarios");
-            }
-
-            int realId;
-
-            try
-            {
-                realId = _idProtector.DecryptId(id);
-            }
-            catch
-            {
-                return BadRequest("ID inválido");
-            }
-
-            var antecedenteLaboral = await _context.AntecedentesLaborales.FindAsync(realId);
-            if (antecedenteLaboral == null) return NotFound();
-
-            ViewBag.EncryptedId = id;
-
-            return View(antecedenteLaboral);
+            return View("Index", experienciaLaboral);
         }
 
         // POST: ExperienciaLaboral/Edit/5
@@ -130,7 +101,7 @@ namespace CurriculumVitaeApp.Controllers
             }
 
             // Obtener el registro original (ya trackeado)
-            var registroExistente = await _context.AntecedentesLaborales
+            var registroExistente = await _context.ExperienciaLaboral
                 .FirstOrDefaultAsync(a => a.Id == realId);
 
             if (registroExistente == null)
@@ -154,7 +125,7 @@ namespace CurriculumVitaeApp.Controllers
             }
 
             if (!ModelState.IsValid)
-                return PartialView("Index", antecedenteLaboral);
+                return RedirectToAction(nameof(Index));
 
             // ------------------------
             // 🔥 ACTUALIZAR SOLO EL REGISTRO TRACKEADO
@@ -191,10 +162,10 @@ namespace CurriculumVitaeApp.Controllers
                 return BadRequest("ID inválido");
             }
 
-            var antecedenteLaboral = await _context.AntecedentesLaborales.FindAsync(realId);
+            var antecedenteLaboral = await _context.ExperienciaLaboral.FindAsync(realId);
             if (antecedenteLaboral != null)
             {
-                _context.AntecedentesLaborales.Remove(antecedenteLaboral);
+                _context.ExperienciaLaboral.Remove(antecedenteLaboral);
             }
 
             await _context.SaveChangesAsync();
@@ -202,6 +173,7 @@ namespace CurriculumVitaeApp.Controllers
 
         }
 
+        //Este método permite obtener el id del usuario por medio del token
         public async Task<int> getIdUsuario()
         {
             var token = Request.Cookies["jwtToken"];
@@ -227,7 +199,7 @@ namespace CurriculumVitaeApp.Controllers
 
         private bool ExperienciaLaboralExists(int id)
         {
-            return _context.AntecedentesLaborales.Any(e => e.Id == id);
+            return _context.ExperienciaLaboral.Any(e => e.Id == id);
         }
     }
 }

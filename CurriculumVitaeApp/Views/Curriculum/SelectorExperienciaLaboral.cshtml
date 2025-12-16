@@ -1,0 +1,74 @@
+﻿@model IEnumerable<CurriculumVitaeApp.Models.ExperienciaLaboral>
+
+@{
+    ViewData["Title"] = "SelectorExperienciaLaboral";
+    Layout = "_LayoutPublic";
+}
+
+<h1>Experiencia Laboral</h1>
+
+<!-- Contador de seleccionados -->
+<div id="selection-counter" class="selection-counter badge bg-info" style="margin-bottom: 10px;">
+    Seleccionados: <span class="selected-count">0</span> / <span class="total-count">@Model.Count()
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaInicio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaTermino)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Vigente)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Empresa)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descripcion)
+            </th>
+            <th>
+                <input type="checkbox" class="select-all" title="Seleccionar todos" />
+                <label for="select-all" style="cursor: pointer; margin-left: 5px;">Seleccionar todos
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr class="item-row" data-id="@item.Id" data-tipo="ExperienciaLaboral">
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaInicio)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaTermino)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Vigente)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Empresa)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Descripcion)
+            </td>
+            <td>
+                <input type="checkbox" name="seleccionados" class="chk-item"/>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <!-- Agrega jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/js/vistas-parciales-curriculum.js"></script>
+}
+
+<link rel="stylesheet" href="~/css/vistas-parciales-curriculum.css" />

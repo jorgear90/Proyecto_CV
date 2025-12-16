@@ -15,6 +15,7 @@ namespace CurriculumVitaeApp.Controllers
             _env = env;
         }
 
+        //Get: pagina principal
         public IActionResult Index()
         {
             var token = Request.Cookies["jwtToken"];
@@ -37,6 +38,7 @@ namespace CurriculumVitaeApp.Controllers
 
         }
 
+        //Post parav eliminar el token y cerrar sesión
         [HttpPost]
         public IActionResult Logout()
         {

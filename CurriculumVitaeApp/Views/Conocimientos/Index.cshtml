@@ -1,0 +1,69 @@
+﻿@model IEnumerable<CurriculumVitaeApp.Models.Conocimiento>
+@inject CurriculumVitaeApp.Helpers.IdProtector IdProtector
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<style>
+    .form-row {
+        display: flex;
+        gap: 15px; /* separación entre columnas */
+        align-items: flex-end; /* alinea inputs y button abajo */
+    }
+</style>
+
+<p>
+    <a asp-action="Crear">Crea conocimiento</a>
+</p>
+
+
+<h3>Conocimientos técnicos</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Descripcion)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <input type="text" name="Descripcion" class="form-control input-descripcion" value="@item.Descripcion" data-original="@item.Descripcion" required />
+                    <span for="Descripcion" class="text-danger"></span>
+                </td>
+                <td>
+                    <form asp-action="Editar" id="formEditarConocimiento" method="post" class="edit-form">
+                        <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
+                        <input type="hidden" name="Descripcion" class="hidden-descripcion" />
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary btn-cancelar-conocimiento">Cancelar</button>
+                    <form asp-action="Eliminar" id="formEliminarHabilidad" method="post" class="delete-form">
+                        <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
+                        <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
+                    </form>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <a asp-controller="Home" asp-action="Index">Volver</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/vistas-index.js"></script>
+}
+

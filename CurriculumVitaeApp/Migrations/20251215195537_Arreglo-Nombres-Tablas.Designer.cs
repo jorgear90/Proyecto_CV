@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CurriculumVitaeApp.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251124195728_Formacion-Academica")]
-    partial class FormacionAcademica
+    [Migration("20251215195537_Arreglo-Nombres-Tablas")]
+    partial class ArregloNombresTablas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace CurriculumVitaeApp.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("CurriculumVitaeApp.Models.DatosBasicos", b =>
+            modelBuilder.Entity("CurriculumVitaeApp.Models.Conocimiento", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -37,9 +37,23 @@ namespace CurriculumVitaeApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Nombre")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("UsuarioID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioID");
+
+                    b.ToTable("Conocimientos");
+                });
+
+            modelBuilder.Entity("CurriculumVitaeApp.Models.Curriculum", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("UsuarioID")
                         .HasColumnType("int");
@@ -48,7 +62,78 @@ namespace CurriculumVitaeApp.Migrations
 
                     b.HasIndex("UsuarioID");
 
-                    b.ToTable("Perfil");
+                    b.ToTable("Curriculum");
+                });
+
+            modelBuilder.Entity("CurriculumVitaeApp.Models.CurriculumSeleccion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CurriculumID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TipoDato")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TipoDatoID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CurriculumSeleccion");
+                });
+
+            modelBuilder.Entity("CurriculumVitaeApp.Models.DatosBasicos", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nombre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("UsuarioID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Valor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioID");
+
+                    b.ToTable("DatosBasicos");
+                });
+
+            modelBuilder.Entity("CurriculumVitaeApp.Models.EncabezadoCurriculum", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("UsuarioID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ValorEncabezado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UsuarioID");
+
+                    b.ToTable("Encabezados");
                 });
 
             modelBuilder.Entity("CurriculumVitaeApp.Models.ExperienciaLaboral", b =>
@@ -83,7 +168,7 @@ namespace CurriculumVitaeApp.Migrations
 
                     b.HasIndex("UsuarioID");
 
-                    b.ToTable("AntecedentesLaborales");
+                    b.ToTable("ExperienciaLaboral");
                 });
 
             modelBuilder.Entity("CurriculumVitaeApp.Models.FormacionAcademica", b =>
@@ -104,6 +189,10 @@ namespace CurriculumVitaeApp.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Ciudad")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -118,7 +207,7 @@ namespace CurriculumVitaeApp.Migrations
                     b.Property<int>("UsuarioID")
                         .HasColumnType("int");
 
-                    b.Property<bool?>("Vigente")
+                    b.Property<bool>("Vigente")
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
@@ -166,7 +255,7 @@ namespace CurriculumVitaeApp.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("tipoInstitucion");
+                    b.ToTable("TipoInstitucion");
                 });
 
             modelBuilder.Entity("CurriculumVitaeApp.Models.Usuario", b =>
@@ -190,10 +279,43 @@ namespace CurriculumVitaeApp.Migrations
                     b.ToTable("Usuarios");
                 });
 
+            modelBuilder.Entity("CurriculumVitaeApp.Models.Conocimiento", b =>
+                {
+                    b.HasOne("CurriculumVitaeApp.Models.Usuario", "Usuarios")
+                        .WithMany("Conocimientos")
+                        .HasForeignKey("UsuarioID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("CurriculumVitaeApp.Models.Curriculum", b =>
+                {
+                    b.HasOne("CurriculumVitaeApp.Models.Usuario", "Usuarios")
+                        .WithMany("Curriculums")
+                        .HasForeignKey("UsuarioID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuarios");
+                });
+
             modelBuilder.Entity("CurriculumVitaeApp.Models.DatosBasicos", b =>
                 {
                     b.HasOne("CurriculumVitaeApp.Models.Usuario", "Usuarios")
                         .WithMany("DatosBasicos")
+                        .HasForeignKey("UsuarioID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuarios");
+                });
+
+            modelBuilder.Entity("CurriculumVitaeApp.Models.EncabezadoCurriculum", b =>
+                {
+                    b.HasOne("CurriculumVitaeApp.Models.Usuario", "Usuarios")
+                        .WithMany("Encabezados")
                         .HasForeignKey("UsuarioID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -249,7 +371,13 @@ namespace CurriculumVitaeApp.Migrations
 
             modelBuilder.Entity("CurriculumVitaeApp.Models.Usuario", b =>
                 {
+                    b.Navigation("Conocimientos");
+
+                    b.Navigation("Curriculums");
+
                     b.Navigation("DatosBasicos");
+
+                    b.Navigation("Encabezados");
 
                     b.Navigation("ExperienciaLaboral");
 

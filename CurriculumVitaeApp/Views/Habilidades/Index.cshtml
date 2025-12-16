@@ -3,10 +3,7 @@
 
 @{
     ViewData["Title"] = "Index";
-    Layout = null;
 }
-
-<h3>Crear habilidad</h3>
 
 <style>
     .form-row {
@@ -16,24 +13,12 @@
     }
 </style>
 
-<div class="col-md-4">
-    <form id="formCrearHabilidad" asp-action="Crear">
-        @Html.AntiForgeryToken()
-        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <div class="form-row">
-            <div>
-                <label for="Descripcion" class="control-label">Descripción</label>
-                <input name="Descripcion" for="Descripcion" class="form-control" required />
-                <span for="Descripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Crear" class="btn btn-success btn-sm" />
-            </div>
-        </div>
-    </form>
-</div>
+<p>
+    <a asp-action="Crear">Crea habilidad</a>
+</p>
 
-<h3>Habilidades</h3>
+
+<h3>Habilidades blandas</h3>
 <table class="table">
     <thead>
         <tr>
@@ -47,7 +32,7 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                    <input type="text" name="Descripcion" class="form-control input-descripcion" value="@item.Descripcion" data-original="@item.Descripcion" required />
+                <input type="text" name="Descripcion" class="form-control input-descripcion" value="@item.Descripcion" data-original="@item.Descripcion" required />
                 <span for="Descripcion" class="text-danger"></span>
             </td>
             <td>
@@ -56,10 +41,10 @@
                     <input type="hidden" name="Descripcion" class="hidden-descripcion" />
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </form>
-                    <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
+                <button type="button" class="btn btn-secondary btn-cancelar-habilidad">Cancelar</button>
                 <form asp-action="Eliminar" id="formEliminarHabilidad" method="post" class="delete-form">
                     <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
-                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                    <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
                 </form>
             </td>
             
@@ -68,50 +53,16 @@
     </tbody>
 </table>
 
+<div>
+    <a asp-controller="Home" asp-action="Index">Volver</a>
+</div>
+
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/vistas-index.js"></script>
 }
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-    function confirmarEliminacion(event) {
-        event.preventDefault();
-
-        Swal.fire({
-            title: '¿Está seguro que desea eliminar este registro?',
-            text: 'Esta acción no se puede deshacer.',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#d33',
-            cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Registro eliminado',
-                    text: 'El registro se ha eliminado con éxito.',
-                    confirmButtonColor: '#005D8F',
-                    allowOutsideClick: false,
-                    allowEscapeKey: false
-                }).then(() => {
-                    document.getElementById('submitButtonHidden').value = 'eliminar';
-                    event.target.closest('form').submit();
-                });
-            }
-
-        });
-    }
-
-    $(document).on('click', '.btn-cancelar', function () {
-        const row = $(this).closest('tr');
-
-        const inputDescripcion = row.find('.input-descripcion');
-
-        // Restaurar desde data-original
-        inputDescripcion.val(inputDescripcion.data('original'));
-    });
-</script>
