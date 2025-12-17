@@ -174,10 +174,12 @@ namespace CurriculumVitaeApp.Controllers
 
                 foreach (var s in seleccionados)
                 {
+                    var tipoDatoCurriculumID = int.Parse(s.Tipo);
+
                     var nuevo = new CurriculumSeleccion
                     {
                         CurriculumID = curriculumId,
-                        TipoDato = s.Tipo,
+                        TipoDatoCurriculumID = tipoDatoCurriculumID,
                         TipoDatoID = s.Id
                         //Orden = index++
                     };
@@ -228,26 +230,26 @@ namespace CurriculumVitaeApp.Controllers
 
             foreach (var s in seleccion)
             {
-                switch (s.TipoDato)
+                switch (s.TipoDatoCurriculumID)
                 {
                     //case "Perfil":
-                    case "DatosBasicos":
+                    case 1:
                         var d = await _context.DatosBasicos.FindAsync(s.TipoDatoID);
                         if (d != null) datos.Add(d);
                         break;
-                    case "Habilidades":
+                    case 2:
                         var h = await _context.Habilidades.FindAsync(s.TipoDatoID);
                         if (h != null) habilidades.Add(h);
                         break;
-                    case "Conocimientos":
+                    case 3:
                         var c = await _context.Conocimientos.FindAsync(s.TipoDatoID);
                         if (c != null) conocimientos.Add(c);
                         break;
-                    case "ExperienciaLaboral":
+                    case 4:
                         var l = await _context.ExperienciaLaboral.FindAsync(s.TipoDatoID);
                         if (l != null) laborales.Add(l);
                         break;
-                    case "FormacionAcademica":
+                    case 5:
                         var a = await _context.FormacionAcademica.FindAsync(s.TipoDatoID);
                         if (a != null) academicos.Add(a);
                         break;

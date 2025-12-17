@@ -7,7 +7,7 @@ namespace CurriculumVitaeApp.Models
     {
         [Key]
         public int Id { get; set; }
-        public string TipoDato { get; set; }
+        public int TipoDatoCurriculumID { get; set; }
         public int TipoDatoID { get; set; }
         public int CurriculumID { get; set; }
         //public int Orden { get; set; }
@@ -15,5 +15,7 @@ namespace CurriculumVitaeApp.Models
         //Clave foranea
         [ForeignKey(nameof(CurriculumID))]
         public virtual Curriculum? Curriculums { get; set; }
+        [ForeignKey(nameof(TipoDatoCurriculumID))]
+        public virtual TipoDatoCurriculum? TiposDatosCurriculums { get; set; }
     }
 }
