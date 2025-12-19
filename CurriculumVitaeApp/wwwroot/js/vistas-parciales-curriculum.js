@@ -125,10 +125,13 @@ function getAllSelectedItems() {
     const selectedItems = [];
     $('.chk-item:checked').each(function () {
         const $checkbox = $(this);
-        const $row = $checkbox.closest('tr');
+        const $row = $checkbox.closest('tr'); // Obtenemos la fila padre
+
         selectedItems.push({
-            id: $checkbox.val(),
-            tipo: $row.data('tipo'),
+            Id: $row.attr('data-id'),
+            Tipo: $row.attr('data-tipo'),
+
+            // Esto es opcional, solo si lo necesitas en el front
             descripcion: $row.find('td:first').text().trim()
         });
     });

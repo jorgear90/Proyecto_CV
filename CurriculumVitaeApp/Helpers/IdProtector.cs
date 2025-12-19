@@ -49,5 +49,7 @@ namespace CurriculumVitaeApp.Helpers
 
             return BitConverter.ToInt32(plain, 0);
         }
+
+        
     }
 }
