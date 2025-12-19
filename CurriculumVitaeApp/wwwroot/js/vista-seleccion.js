@@ -78,7 +78,6 @@ function confirmarSeleccion(event) {
     event.preventDefault();
 
     var form = $('#formSeleccion');
-
     var valor = $('.input-valor').val()?.trim();
 
     if (!valor) {
@@ -107,19 +106,30 @@ function confirmarSeleccion(event) {
 
             let seleccionados = [];
 
+            // Iteramos sobre las filas
             $(".item-row").each(function () {
-
                 const chk = $(this).find(".chk-item");
 
                 if (chk.is(":checked")) {
+
+                    // CAMBIO CRÍTICO 1: Usar .attr() en vez de .data()
+                    // .attr() obliga a leer el TEXTO exacto del HTML (el string encriptado)
+                    var idEncriptado = $(this).attr("data-id");
+                    var tipoDato = $(this).attr("data-tipo");
+
                     seleccionados.push({
-                        id: parseInt($(this).data("id")),
-                        tipo: $(this).data("tipo")
+                        // CAMBIO CRÍTICO 2: Poner la primera letra en MAYÚSCULA (Id, Tipo)
+                        // para que coincida exactamente con tu clase C# ItemSeleccion
+                        Id: idEncriptado,
+                        Tipo: tipoDato
                     });
                 }
             });
 
+            // DEBUG: Muestra esto en la consola (F12) antes de que se envíe
+            console.log("JSON a enviar:", JSON.stringify(seleccionados));
 
+            // Asignamos el valor al input hidden
             $("#seleccionadosJson").val(JSON.stringify(seleccionados));
 
             Swal.fire({
@@ -134,7 +144,8 @@ function confirmarSeleccion(event) {
             });
 
             setTimeout(() => {
-                event.target.closest('form').submit();
+                // Enviar el formulario
+                form.submit();
             }, 1400);
         }
     });

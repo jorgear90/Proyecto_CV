@@ -1,8 +1,11 @@
 ﻿@model IEnumerable<CurriculumVitaeApp.Models.DatosBasicos>
+@inject CurriculumVitaeApp.Helpers.IdProtector IdProtector
 
 @{
     ViewData["Title"] = "SelectorDatosBasicos";
     Layout = "_LayoutPublic";
+
+    var idsSeleccionados = ViewBag.IdsSeleccionados as HashSet<int> ?? new HashSet<int>();
 }
 
 <h1>Datos Básicos</h1>
@@ -30,7 +33,7 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr class="item-row" data-id="@item.Id" data-tipo="1">
+            <tr class="item-row" data-id='@IdProtector.EncryptId(item.Id)' data-tipo="1">
                 <td>
                     @Html.DisplayFor(modelItem => item.NombreDato)
                 </td>
@@ -38,7 +41,7 @@
                     @Html.DisplayFor(modelItem => item.ValorDato)
                 </td>
                 <td>
-                    <input type="checkbox" name="seleccionados" class="chk-item" />
+                    <input type="checkbox" name="seleccionados" class="chk-item" @(idsSeleccionados.Contains(item.Id) ? "checked" : "") />
                 </td>
             </tr>
         }
@@ -53,5 +56,6 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="~/js/vistas-parciales-curriculum.js"></script>
 }
+
 
 <link rel="stylesheet" href="~/css/vistas-parciales-curriculum.css" />
