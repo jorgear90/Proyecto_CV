@@ -163,6 +163,40 @@ namespace CurriculumVitaeApp.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EditarDescripcion(string idEditar, string? Descripcion)
+        {
+            var idUsuario = await getIdUsuario();
+
+            int realId;
+
+            try
+            {
+                realId = _idProtector.DecryptId(idEditar);
+            }
+            catch
+            {
+                return BadRequest("ID inválido");
+            }
+
+            // Obtener el registro original (ya trackeado)
+            var registroExistente = await _context.FormacionAcademica
+                .FirstOrDefaultAsync(a => a.Id == realId);
+
+            if (registroExistente == null)
+                return NotFound();
+
+            //Editar descripción:
+            registroExistente.Descripcion = Descripcion;
+
+            // Guardar cambios
+            await _context.SaveChangesAsync();
+
+            //ViewData["TipoInstitucionID"] = new SelectList(_context.TipoInstitucion, "ID", "Tipo", formacionAcademica.TipoInstitucionID);
+
+            return RedirectToAction(nameof(Index));
+        }
+
         // POST: FormacionAcademica/Delete/5
         [HttpPost, ActionName("Eliminar")]
         public async Task<IActionResult> DeleteConfirmed(string id)
