@@ -19,6 +19,7 @@ using QuestPDF.Infrastructure;
 using System.Globalization;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Text.RegularExpressions;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace CurriculumVitaeApp.Controllers
 {
@@ -485,7 +486,23 @@ namespace CurriculumVitaeApp.Controllers
 
                                     r.RelativeColumn(ColRight).Column(c =>
                                     {
-                                        c.Item().Text($"{a.Carrera} - {tipo} {a.NombreInstitucion} {a.Ciudad}").SemiBold().FontSize(12);
+                                        if(a.Descripcion == " ")
+                                        {
+                                            c.Item().Text($"{a.Carrera} - {tipo} {a.NombreInstitucion} {a.Ciudad}. {a.Descripcion}").SemiBold().FontSize(12);
+                                        }
+                                        else
+                                        {
+                                            c.Item().Text(text =>
+                                            {
+                                                // Texto normal
+                                                text.Span($"{a.Carrera} - {tipo} {a.NombreInstitucion} {a.Ciudad} - ")
+                                                    .SemiBold()
+                                                    .FontSize(12);
+
+                                                // Texto con Markdown
+                                                RenderMarkdown(text, a.Descripcion ?? "", 12);
+                                            });
+                                        }
                                         //c.Item().Text(a.NombreInstitucion).FontSize(12);
                                     });
                                 });
@@ -526,11 +543,22 @@ namespace CurriculumVitaeApp.Controllers
                     // FOOTER
                     page.Footer()
                         .AlignCenter()
-                        .Text(x =>
+                        .Row(row =>
                         {
-                            x.Span("Generado: ").SemiBold();
-                            x.Span(DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
+                            row.AutoItem().Text(text =>
+                            {
+                                text.Span("Generado: ").SemiBold();
+                                text.Span(DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
+                                text.Span(" - Hecho con: ");
+                            });
+
+                            row.AutoItem()
+                                .Hyperlink("https://github.com/jorgear90/Proyecto_CV")
+                                .Text(" Proyecto CV")
+                                .Underline()
+                                .FontColor(Colors.Blue.Medium);
                         });
+
                 });
             })
 
@@ -539,6 +567,21 @@ namespace CurriculumVitaeApp.Controllers
 
             return bytes;
         }
+
+        //Configura palabras escritas el markdown
+        void RenderMarkdown(TextDescriptor text, string markdown, float fontSize = 12)
+        {
+            var parts = Regex.Split(markdown, @"(\*\*.*?\*\*)");
+
+            foreach (var part in parts)
+            {
+                if (part.StartsWith("**") && part.EndsWith("**"))
+                    text.Span(part.Trim('*')).Bold().FontSize(fontSize);
+                else
+                    text.Span(part).FontSize(fontSize);
+            }
+        }
+
 
         // helper style
         IContainer CellStyle(IContainer container)

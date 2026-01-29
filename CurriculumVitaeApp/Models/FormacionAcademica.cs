@@ -24,9 +24,9 @@ namespace CurriculumVitaeApp.Models
         [Display(Name = "Año de termino")]
         public int? AnhoTermino { get; set; }
         public bool Vigente { get; set; }
-        [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
+
         [Display(Name = "Descripción")]
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
 
         //Clave foranea
         [ForeignKey(nameof(TipoInstitucionID))]

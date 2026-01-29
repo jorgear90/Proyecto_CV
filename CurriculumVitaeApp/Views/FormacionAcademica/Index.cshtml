@@ -14,14 +14,18 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <form id="formEditarDescripcionFa" method="post" asp-action="Editar">
+                <form id="formEditarDescripcionFa" asp-controller="FormacionAcademica" method="post" asp-action="EditarDescripcion">
                     <input type="hidden" name="idEditar" id="modal-id-editar-fa" />
                     <div class="form-group">
                         <label>Descripción</label>
-                        <textarea name="Descripcion" id="modal-descripcion-fa" class="form-control" rows="5" required></textarea>
+                        <textarea name="Descripcion" id="modal-descripcion-fa" class="form-control" rows="5"></textarea>
                     </div>
                     <button type="button" class="btn btn-secondary btn-cancelar-modal-fa">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="submit"
+                            class="btn btn-primary"
+                            form="formEditarDescripcionFa">
+                        Guardar
+                    </button>
                 </form>
             </div>
             <div class="modal-footer">

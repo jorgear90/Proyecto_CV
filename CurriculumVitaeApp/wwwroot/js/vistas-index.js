@@ -408,7 +408,7 @@ $(document).on('submit', '#formEditarDescripcionFa', function (e) {
     e.preventDefault();
 
     $.ajax({
-        url: '/FormacionAcademica/Editar',
+        url: '/FormacionAcademica/EditarDescripcion',
         method: 'POST',
         data: $(this).serialize(),
         success: function (result) {
