@@ -4,6 +4,7 @@
     //ExperienciaLaboral
     //FormacionAcademica
     //Habilidades
+    //Links
 
 //Métodos para todos los Index
 //Método para eliminar registro de una vistas Index
@@ -166,7 +167,7 @@ $(document).on('submit', '#formEditarDato', function (e) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error al editar dato básico',
-                text: xhr.responseText // ← esto déjalo así
+                text: xhr.responseText 
             });
         }
     });
@@ -640,6 +641,80 @@ $(document).on('submit', '#formEditarHabilidad', function (e) {
             Swal.fire({
                 icon: 'error',
                 title: 'Error editar la habilidad',
+                text: xhr.responseText
+            });
+        }
+    });
+});
+
+// Metodos para el Index de LINKS
+//Links
+$(document).on('click', '.btn-cancelar-enlace', function () {
+    const row = $(this).closest('tr');
+
+    const inputTitulo = row.find('.input-titulo');
+    const inputEnlace = row.find('.input-enlace');
+
+    // Restaurar desde data-original
+    inputTitulo.val(inputTitulo.data('original'));
+    inputEnlace.val(inputEnlace.data('original'));
+});
+
+//Editar enlace
+$(document).on('submit', 'form[data-form="editar-enlace"]', function (e) {
+    e.preventDefault();
+
+    var form = $(this);
+
+    // Tomar los valores visibles
+    var titulo = form.closest('tr').find('.input-titulo').val().trim();
+    var enlace = form.closest('tr').find('.input-enlace').val().trim();
+
+    // VALIDACIÓN CLIENTE
+    if (titulo === "" || enlace === "") {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Campos requeridos',
+            text: 'Debes completar Titulo y Enlace antes de guardar.',
+            confirmButtonColor: '#005D8F'
+        });
+        return; // NO enviar al servidor
+    }
+
+    // Pasar valores a los inputs hidden del form
+    form.find('input[name="Titulo"]').val(titulo);
+    form.find('input[name="Enlace"]').val(enlace);
+
+    // Token
+    var token = $('input[name="__RequestVerificationToken"]').val();
+
+    $.ajax({
+        url: form.attr('action'),
+        method: 'POST',
+        data: form.serialize(),
+        success: function (result) {
+
+            const fila = form.closest('tr');
+
+            const inputTitulo = fila.find('.input-titulo');
+            const inputEnlace = fila.find('.input-enlace');
+
+            inputTitulo.data('original', inputTitulo.val());
+            inputEnlace.data('original', inputEnlace.val());
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Registro actualizado',
+                confirmButtonColor: '#005D8F'
+            });
+
+            const contenedor = $('.opcion[data-url="/Links/Index"]').find('.contenido-parcial');
+            contenedor.html(result);
+        },
+        error: function (xhr) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al editar registro',
                 text: xhr.responseText
             });
         }
