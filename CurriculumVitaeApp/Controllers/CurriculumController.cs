@@ -196,6 +196,38 @@ namespace CurriculumVitaeApp.Controllers
             return View(await antecedentesLaborales.ToListAsync());
         }
 
+        // Método GET para la vista parcial DatosBasicos
+        public async Task<IActionResult> SelectorEnlaces()
+        {
+            var idUsuario = await getIdUsuario();
+
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            var curriculumId = await _context.Curriculum
+                .Where(c => c.UsuarioID == idUsuario)
+                .Select(c => c.Id)
+                .FirstOrDefaultAsync();
+
+            var idsSeleccionados = new HashSet<int>();
+
+            if (curriculumId != 0)
+            {
+                idsSeleccionados = await _context.CurriculumSeleccion
+                    .Where(cs => cs.CurriculumID == curriculumId && cs.TipoDatoCurriculumID == 6)
+                    .Select(cs => cs.TipoDatoID)
+                    .ToHashSetAsync();
+            }
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            var enlaces = _context.Enlaces
+                .Include(d => d.Usuarios)
+                .Where(d => d.UsuarioID == idUsuario);
+
+            return View(await enlaces.ToListAsync());
+        }
+
         // GET: Curriculum/Details/5
         public async Task<IActionResult> VistaSeleccionar()
         {
@@ -331,6 +363,7 @@ namespace CurriculumVitaeApp.Controllers
             var laborales = new List<ExperienciaLaboral>();
             var academicos = new List<FormacionAcademica>();
             var conocimientos = new List<Conocimiento>();
+            var enlaces = new List<Link>();
 
             foreach (var s in seleccion)
             {
@@ -356,6 +389,10 @@ namespace CurriculumVitaeApp.Controllers
                     case 5:
                         var a = await _context.FormacionAcademica.FindAsync(s.TipoDatoID);
                         if (a != null) academicos.Add(a);
+                        break;
+                    case 6:
+                        var e = await _context.Enlaces.FindAsync(s.TipoDatoID);
+                        if (e != null) enlaces.Add(e);
                         break;
                 }
             }
@@ -535,6 +572,37 @@ namespace CurriculumVitaeApp.Controllers
                                     });
                                 });
 
+                                col.Item().PaddingBottom(paddingBottomSecciones).Element(x => { });
+                            }
+                        }
+                        //
+                        // ENLACES
+                        //
+                        if (enlaces.Any())
+                        {
+                            // aplica padding al item (contenedor) ANTES de Text(...)
+                            if (enlaces.Any())
+                            {
+                                // aplica padding al item (contenedor) ANTES de Text(...)
+                                col.Item().PaddingBottom(paddingBottomTitulos).Text("Enlaces").SemiBold().FontSize(18);
+
+                                foreach (var r in enlaces)
+                                {
+                                    col.Item().Row(e =>
+                                    {
+                                        e.RelativeColumn(ColLeft).Text($"{r.Titulo}:").SemiBold().FontSize(12);
+                                        e.RelativeColumn(ColRight).Text(text =>
+                                        {
+                                            ApplyLinkStyling(text, r.Enlace ?? "");
+                                            // El FontSize se aplica DENTRO del bloque Text
+                                            // El estilo base se hereda del FontSize(10) configurado en page.DefaultTextStyle()
+                                            // Si necesitas tamaño específico aquí, usa: text.FontSize(12);
+                                        });
+                                        // Quita el .FontSize(12) de aquí ↓
+                                    });
+                                }
+
+                                // Padding para separar secciones (aplicado a un item vacío o al siguiente item)
                                 col.Item().PaddingBottom(paddingBottomSecciones).Element(x => { });
                             }
                         }
