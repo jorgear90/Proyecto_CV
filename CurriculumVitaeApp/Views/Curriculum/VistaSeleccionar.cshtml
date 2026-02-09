@@ -8,7 +8,9 @@
 
 <div class="form-group">
     <label class="control-label">Crear encabezado</label>
-    <input type="text" name="valor" class="form-control input-valor" value="@ViewBag.Encabezado" required />
+    <input type="text" name="encabezado" class="form-control input-valor" value="@ViewBag.Encabezado" required />
+    <label class="control-label">Crear nombre de cv</label>
+    <input type="text" name="nombreCv" class="form-control input-nombre-cv" value="@ViewBag.NombreCv" required />
 </div>
 
 <div class="opciones-container">
@@ -49,7 +51,8 @@
 
 <form id="formSeleccion" asp-action="GenerarPDF" method="post">
     <input type="hidden" name="seleccionadosJson" id="seleccionadosJson" />
-    <input type="hidden" name="Valor" class="hidden-valor" />
+    <input type="hidden" name="Encabezado" class="hidden-encabezado" />
+    <input type="hidden" name="NombreCv" class="hidden-nombre-cv" />
 
     <button type="submit" onclick="confirmarSeleccion(event)" class="btn btn-success">Generar PDF</button>
 </form>
@@ -58,6 +61,14 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+    <script>
+        window.swalErrorMessage = @(
+        TempData["SwalError"] != null
+        ? Html.Raw(Json.Serialize(TempData["SwalError"]))
+        : "null"
+    );
+    </script>
 
     <script src="~/js/vista-seleccion.js"></script>
         

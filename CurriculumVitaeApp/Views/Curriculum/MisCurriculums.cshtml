@@ -1,0 +1,63 @@
+﻿@model IEnumerable<CurriculumVitaeApp.Models.Curriculum>
+@inject CurriculumVitaeApp.Helpers.IdProtector IdProtector
+
+@{
+    ViewData["Title"] = "MisCurriculums";
+}
+
+<h1>Mis Curriculums</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Nombre)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                <a asp-action="DescargarCv"
+                    asp-route-idDescargar="@IdProtector.EncryptId(item.Id)">
+                    Descargar
+                </a> |
+                <a asp-action="VistaPreviaCv"
+                    asp-route-id="@IdProtector.EncryptId(item.Id)"
+                    target="_blank"
+                    rel="noopener noreferrer">
+                    Vista previa
+                </a> |
+                <form asp-action="EliminarCv"
+                        method="post"
+                        style="display:inline">
+
+                    <input type="hidden"
+                            name="idEliminar"
+                            value="@IdProtector.EncryptId(item.Id)" />
+
+                    <button type="submit"
+                            class="btn btn-link p-0 text-danger"
+                            onclick="confirmarEliminacion(event)">
+                        Eliminar
+                    </button>
+                </form>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/js/vista-mis-curriculums.js"></script>
+}

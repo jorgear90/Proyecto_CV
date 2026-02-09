@@ -27,11 +27,27 @@ namespace CurriculumVitaeApp.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IdProtector _idProtector;
+        private readonly IWebHostEnvironment _env;
 
-        public CurriculumController(AppDbContext context, IdProtector idProtector)
+        public CurriculumController(AppDbContext context, IdProtector idProtector, IWebHostEnvironment env)
         {
             _context = context;
             _idProtector = idProtector;
+            _env = env;
+        }
+
+        public async Task<IActionResult> MisCurriculums()
+        {
+            var idUsuario = await getIdUsuario();
+
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            var curriculums = await _context.Curriculum
+                .Where(c => c.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            return View(curriculums);
         }
 
         // Método GET para la vista parcial DatosBasicos
@@ -236,16 +252,168 @@ namespace CurriculumVitaeApp.Controllers
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            var encabezado = await _context.Encabezados.Where( e => e.UsuarioID == idUsuario).Select( e => e.ValorEncabezado).FirstOrDefaultAsync();
+            var encabezado = await _context.Curriculum.Where( e => e.UsuarioID == idUsuario).Select( e => e.Encabezado).FirstOrDefaultAsync();
+            var nombre = await _context.Curriculum.Where(e => e.UsuarioID == idUsuario).Select(e => e.Nombre).FirstOrDefaultAsync();
 
             ViewBag.Encabezado = encabezado;
+            ViewBag.NombreCv = nombre;
 
             return View();
         }
 
+        //Función que permite descargar un cv desde la vista misCurriculums
+        [HttpGet]
+        public async Task<IActionResult> DescargarCv(string idDescargar)
+        {
+            // id = idCv
+            var idUsuario = await getIdUsuario();
+
+            int realId;
+
+            try
+            {
+                realId = _idProtector.DecryptId(idDescargar);
+            }
+            catch
+            {
+                return BadRequest("ID inválido");
+            }
+
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            // Ruta física a wwwroot
+            var webRoot = _env.WebRootPath;
+
+            // wwwroot/cv-usuarios/{idUsuario}/{idCv}.pdf
+            var rutaArchivo = Path.Combine(
+                webRoot,
+                "cv-usuarios",
+                idUsuario.ToString(),
+                $"{realId}.pdf"
+            );
+
+            // Verificar que el archivo exista
+            if (!System.IO.File.Exists(rutaArchivo))
+            {
+                return NotFound("El curriculum solicitado no existe.");
+            }
+
+            //Obtener nombre del archivo
+            var nombrePdf = await _context.Curriculum.Where(c => c.Id == realId).Select(c => c.Nombre).FirstOrDefaultAsync();
+
+            // Leer bytes
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(rutaArchivo);
+
+            // Descargar archivo
+            return File(
+                fileBytes,
+                "application/pdf",
+                $"{nombrePdf}.pdf"
+            );
+        }
+
+        //Método que permite eliminar un cv
+        [HttpPost, ActionName("EliminarCv")]
+        public async Task<IActionResult> DeleteConfirmed(string idEliminar)
+        {
+            int realId;
+
+            try
+            {
+                realId = _idProtector.DecryptId(idEliminar);
+            }
+            catch
+            {
+                return BadRequest("ID inválido");
+            }
+
+            var idUsuario = await getIdUsuario();
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            // Buscar curriculum en BD
+            var curriculum = await _context.Curriculum
+                .FirstOrDefaultAsync(c => c.Id == realId && c.UsuarioID == idUsuario);
+
+            if (curriculum == null)
+                return NotFound();
+
+            // 👉 Eliminar archivo físico
+            var rutaArchivo = Path.Combine(
+                _env.WebRootPath,
+                "cv-usuarios",
+                idUsuario.ToString(),
+                $"{realId}.pdf"
+            );
+
+            if (System.IO.File.Exists(rutaArchivo))
+            {
+                System.IO.File.Delete(rutaArchivo);
+            }
+
+            var carpetaUsuario = Path.GetDirectoryName(rutaArchivo);
+
+            if (Directory.Exists(carpetaUsuario) &&
+                !Directory.EnumerateFileSystemEntries(carpetaUsuario).Any())
+            {
+                Directory.Delete(carpetaUsuario);
+            }
+
+            // 👉 Eliminar registro BD
+            _context.Curriculum.Remove(curriculum);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(MisCurriculums));
+        }
+
+        //Este método muestra una vista previa del cv
+        [HttpGet]
+        public async Task<IActionResult> VistaPreviaCv(string id)
+        {
+            int realId;
+
+            try
+            {
+                realId = _idProtector.DecryptId(id);
+            }
+            catch
+            {
+                return BadRequest("ID inválido");
+            }
+
+            var idUsuario = await getIdUsuario();
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            // Verificar que el CV pertenezca al usuario
+            var existe = await _context.Curriculum
+                .AnyAsync(c => c.Id == realId && c.UsuarioID == idUsuario);
+
+            if (!existe)
+                return Forbid();
+
+            // Ruta física del PDF
+            var rutaArchivo = Path.Combine(
+                _env.WebRootPath,
+                "cv-usuarios",
+                idUsuario.ToString(),
+                $"{realId}.pdf"
+            );
+
+            if (!System.IO.File.Exists(rutaArchivo))
+                return NotFound("El archivo no existe.");
+
+            var fileBytes = await System.IO.File.ReadAllBytesAsync(rutaArchivo);
+
+            // 👀 Vista previa (inline)
+            return File(fileBytes, "application/pdf");
+        }
+
+
         //Este método recepciona y entrega los datos seleccionados para generar el curriculum
         [HttpPost]
-        public async Task<IActionResult> GenerarPDF(string seleccionadosJson, string valor)
+        public async Task<IActionResult> GenerarPDF(string seleccionadosJson, string encabezado, string nombreCv)
         {
             if (string.IsNullOrEmpty(seleccionadosJson))
             {
@@ -260,15 +428,26 @@ namespace CurriculumVitaeApp.Controllers
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
+            var cantidadCv = await _context.Curriculum.CountAsync(u => u.UsuarioID == idUsuario);
+
+            if (cantidadCv >= 5)
+            {
+                TempData["SwalError"] = "Has alcanzado el límite máximo de 5 currículums. Para crear uno nuevo, elimina alguno de los existentes.";
+                return RedirectToAction("VistaSeleccionar"); 
+            }
+
+
             int curriculumId = await _context.Curriculum.Where( c => c.UsuarioID == idUsuario).Select(c => c.Id).FirstOrDefaultAsync();
 
-            int valorId = await _context.Encabezados.Where( e => e.UsuarioID == idUsuario).Select(e => e.Id).FirstOrDefaultAsync();
+            //int valorId = await _context.Encabezados.Where( e => e.UsuarioID == idUsuario).Select(e => e.Id).FirstOrDefaultAsync();
 
-            if(curriculumId == 0)
+            if (curriculumId != 0)
             {
                 var nuevoCv = new Curriculum
                 {
                     UsuarioID = idUsuario,
+                    Nombre = nombreCv,
+                    Encabezado = encabezado,
                     //Orden = index++
                 };
                 _context.Add(nuevoCv);
@@ -277,7 +456,33 @@ namespace CurriculumVitaeApp.Controllers
                 curriculumId = nuevoCv.Id;
             }
 
-            if (valorId == 0)
+            /*
+            if (curriculumId == 0)
+            {
+                var nuevoCv = new Curriculum
+                {
+                    UsuarioID = idUsuario,
+                    Nombre = nombreCv,
+                    Encabezado = encabezado,
+                    //Orden = index++
+                };
+                _context.Add(nuevoCv);
+                await _context.SaveChangesAsync();
+
+                curriculumId = nuevoCv.Id;
+            }
+            else
+            {
+                var cv = await _context.Curriculum.Where(c => c.Id == curriculumId).FirstOrDefaultAsync();
+
+                cv.Nombre = nombreCv;
+                cv.Encabezado = encabezado;
+
+                _context.Update(cv);
+                await _context.SaveChangesAsync();
+            }*/
+
+            /*if (valorId == 0)
             {
                 var nuevoEncabezado = new EncabezadoCurriculum
                 {
@@ -288,14 +493,14 @@ namespace CurriculumVitaeApp.Controllers
                 _context.Add(nuevoEncabezado);
                 await _context.SaveChangesAsync();
             }
-            else
+            /*else
             {
                 var encabezadoExiste = await _context.Encabezados.Where(e => e.UsuarioID == idUsuario).FirstOrDefaultAsync();
                 encabezadoExiste.ValorEncabezado = valor;
 
                 _context.Update(encabezadoExiste);
                 await _context.SaveChangesAsync();
-            }
+            }*/
 
             int index = 0;
 
@@ -331,7 +536,11 @@ namespace CurriculumVitaeApp.Controllers
                 // Si todo salió bien => commit
                 await tx.CommitAsync();
 
-                return File(pdfBytes, "application/pdf", "Curriculum.pdf");
+                AlmacenarCv(curriculumId, idUsuario, pdfBytes);
+
+                var nombrePdf = await _context.Curriculum.Where(c => c.Id == curriculumId).Select(c => c.Nombre).FirstOrDefaultAsync();
+
+                return File(pdfBytes, "application/pdf", nombrePdf + ".pdf");
             }
             catch (Exception ex)
             {
@@ -677,6 +886,29 @@ namespace CurriculumVitaeApp.Controllers
             var idUsuario = await _context.Usuarios.Where(u => u.Correo == correo).Select(u => u.Id).FirstOrDefaultAsync();
 
             return idUsuario;
+
+        }
+
+        //Método que almacena los cvs en el disco de la aplicación
+        public async Task AlmacenarCv(int curriculumId, int idUsuario, byte[] pdfBytes)
+        {
+            // Ruta base: wwwroot
+            var webRoot = _env.WebRootPath;
+
+            // wwwroot/cv-usuarios/{idUsuario}
+            var carpetaUsuario = Path.Combine(webRoot, "cv-usuarios", idUsuario.ToString());
+
+            // Crear carpeta si no existe
+            if (!Directory.Exists(carpetaUsuario))
+            {
+                Directory.CreateDirectory(carpetaUsuario);
+            }
+
+            // Nombre del archivo: {curriculumId}.pdf
+            var rutaArchivo = Path.Combine(carpetaUsuario, $"{curriculumId}.pdf");
+
+            // Guardar el archivo
+            await System.IO.File.WriteAllBytesAsync(rutaArchivo, pdfBytes);
 
         }
 
