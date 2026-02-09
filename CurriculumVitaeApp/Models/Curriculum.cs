@@ -6,6 +6,8 @@ namespace CurriculumVitaeApp.Models
     {
         public int Id { get; set; }
         public int UsuarioID { get; set; }
+        public string Nombre { get; set; }
+        public string Encabezado { get; set; }
 
         //Clave foranea
         [ForeignKey(nameof(UsuarioID))]

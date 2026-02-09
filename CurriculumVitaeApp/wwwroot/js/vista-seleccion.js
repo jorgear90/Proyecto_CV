@@ -79,6 +79,7 @@ function confirmarSeleccion(event) {
 
     var form = $('#formSeleccion');
     var valor = $('.input-valor').val()?.trim();
+    var nombreCv = $('.input-nombre-cv').val()?.trim();
 
     if (!valor) {
         Swal.fire({
@@ -88,9 +89,18 @@ function confirmarSeleccion(event) {
             confirmButtonColor: '#005D8F'
         });
         return;
+    } else if (!nombreCv) {
+        Swal.fire({
+            icon: 'warning',
+            title: 'Nombre requerido',
+            text: 'Debes ingresar un nombre para el cv antes de generar el PDF',
+            confirmButtonColor: '#005D8F'
+        });
+        return;
     }
 
-    form.find('.hidden-valor').val(valor);
+    form.find('.hidden-encabezado').val(valor);
+    form.find('.hidden-nombre-cv').val(nombreCv);
 
     Swal.fire({
         title: 'Generar curriculum',
@@ -127,7 +137,7 @@ function confirmarSeleccion(event) {
             });
 
             // DEBUG: Muestra esto en la consola (F12) antes de que se envíe
-            console.log("JSON a enviar:", JSON.stringify(seleccionados));
+            //console.log("JSON a enviar:", JSON.stringify(seleccionados));
 
             // Asignamos el valor al input hidden
             $("#seleccionadosJson").val(JSON.stringify(seleccionados));
@@ -150,6 +160,18 @@ function confirmarSeleccion(event) {
         }
     });
 }
+
+//Entrega un error si se alcanza el maximo de cvs almacenados
+$(document).ready(function () {
+    if (window.swalErrorMessage) {
+        Swal.fire({
+            icon: 'error',
+            title: 'No es posible continuar',
+            text: window.swalErrorMessage,
+            confirmButtonColor: '#d33'
+        });
+    }
+});
 
 //Modales
 $(document).on('hidden.bs.modal', function () {

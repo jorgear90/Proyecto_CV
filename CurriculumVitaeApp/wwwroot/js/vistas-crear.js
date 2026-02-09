@@ -4,13 +4,28 @@
     //ExperienciaLaboral
     //FormacionAcademica
     //Habilidades
+    //Links
 
 function confirmarCreacion(event) {
     event.preventDefault();
 
     var form = $("#formCrear");
 
+    // fuerza validación MVC
     if (!form.valid()) {
+
+        // buscamos error específico de Enlace
+        var errorEnlace = $('span[data-valmsg-for="Enlace"]').text();
+
+        if (errorEnlace && errorEnlace.toLowerCase().includes("url")) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Enlace inválido',
+                text: 'El campo Enlace debe ser una URL válida.',
+                confirmButtonColor: '#d33'
+            });
+        }
+
         return;
     }
 

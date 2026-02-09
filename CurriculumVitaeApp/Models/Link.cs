@@ -12,6 +12,7 @@ namespace CurriculumVitaeApp.Models
         [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
         public string Titulo { get; set; }
         [Required(ErrorMessage = MensajesValidacion.CampoObligatorio)]
+        [Url(ErrorMessage = "El campo Enlace debe ser una URL válida")]
         public string Enlace { get; set; }
 
         [ForeignKey(nameof(UsuarioID))]
