@@ -45,6 +45,7 @@ namespace CurriculumVitaeApp.Controllers
 
             var curriculums = await _context.Curriculum
                 .Where(c => c.UsuarioID == idUsuario)
+                .OrderBy(c => c.Fecha)
                 .ToListAsync();
 
             return View(curriculums);
@@ -437,24 +438,23 @@ namespace CurriculumVitaeApp.Controllers
             }
 
 
-            int curriculumId = await _context.Curriculum.Where( c => c.UsuarioID == idUsuario).Select(c => c.Id).FirstOrDefaultAsync();
+            //int curriculumId = await _context.Curriculum.Where( c => c.UsuarioID == idUsuario).Select(c => c.Id).FirstOrDefaultAsync();
 
             //int valorId = await _context.Encabezados.Where( e => e.UsuarioID == idUsuario).Select(e => e.Id).FirstOrDefaultAsync();
 
-            if (curriculumId != 0)
+            var nuevoCv = new Curriculum
             {
-                var nuevoCv = new Curriculum
-                {
-                    UsuarioID = idUsuario,
-                    Nombre = nombreCv,
-                    Encabezado = encabezado,
-                    //Orden = index++
-                };
-                _context.Add(nuevoCv);
-                await _context.SaveChangesAsync();
+                UsuarioID = idUsuario,
+                Nombre = nombreCv,
+                Encabezado = encabezado,
+                Fecha = DateOnly.FromDateTime(DateTime.Today),
+                
+                //Orden = index++
+            };
+            _context.Add(nuevoCv);
+            await _context.SaveChangesAsync();
 
-                curriculumId = nuevoCv.Id;
-            }
+            var curriculumId = nuevoCv.Id;
 
             /*
             if (curriculumId == 0)
