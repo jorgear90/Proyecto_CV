@@ -13,6 +13,9 @@
             <th>
                 @Html.DisplayNameFor(model => model.Nombre)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Fecha)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -21,6 +24,9 @@
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Fecha)
             </td>
             <td>
                 <a asp-action="DescargarCv"
