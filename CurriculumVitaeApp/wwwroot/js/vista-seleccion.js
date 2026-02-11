@@ -23,19 +23,26 @@
 }
 
 
+// 1. Variable global para recordar qué categorías ya trajimos por AJAX
+let categoriasCargadas = [];
+
 $(document).ready(function () {
-    // Función para abrir una opción específica
+
     function abrirOpcion(opcionElement) {
         const parent = opcionElement;
         const contentContainer = parent.find('.contenido-parcial');
         const url = parent.data('url');
         const toggleButton = parent.find('.btn-toggle');
+        const tipo = parent.data('tipo').toString(); // Obtenemos el tipo
 
-        // Cierra las otras vistas parciales
         $('.contenido-parcial').not(contentContainer).slideUp();
         $('.btn-toggle').not(toggleButton).text('+');
 
-        // Carga y muestra la vista parcial
+        // Registramos que esta categoría ya fue abierta y sus datos están en el DOM
+        if (!categoriasCargadas.includes(tipo)) {
+            categoriasCargadas.push(tipo);
+        }
+
         cargarVistaParcial(contentContainer, url);
         toggleButton.text('–');
     }
@@ -44,9 +51,9 @@ $(document).ready(function () {
         const parent = $(this).closest('.opcion');
         const contentContainer = parent.find('.contenido-parcial');
         const url = parent.data('url');
+        const tipo = parent.data('tipo').toString(); // Obtenemos el tipo
         const toggleButton = $(this);
 
-        // Cierra las otras vistas parciales
         $('.contenido-parcial').not(contentContainer).slideUp();
         $('.btn-toggle').not(toggleButton).text('+');
 
@@ -58,13 +65,16 @@ $(document).ready(function () {
                 contentContainer.slideDown();
                 toggleButton.text('–');
             } else {
+                // Registramos la categoría
+                if (!categoriasCargadas.includes(tipo)) {
+                    categoriasCargadas.push(tipo);
+                }
                 cargarVistaParcial(contentContainer, url);
                 toggleButton.text('–');
             }
         }
     });
 
-    // Abrir automáticamente "Datos Básicos" al cargar
     abrirOpcion($('.opcion[data-url="/Curriculum/SelectorDatosBasicos"]'));
 });
 
@@ -79,7 +89,6 @@ function activarOrdenamiento(contenedor) {
         ghostClass: "sortable-ghost"
     });
 }
-
 
 //Confirmar la selección Credential los items y generar PDF
 function confirmarSeleccion(event) {
@@ -128,30 +137,35 @@ function confirmarSeleccion(event) {
 
             let seleccionados = [];
 
-            // Iteramos sobre las filas
+            // PASO A: Leer lo que venía de la base de datos inicialmente
+            let seleccionesPrevias = JSON.parse($("#seleccionesPreviasHidden").val() || "[]");
+
+            // PASO B: Si NO abrimos la pestaña, conservamos los datos previos
+            seleccionesPrevias.forEach(function (item) {
+                // Si la categoría del item NO está en las cargadas, lo conservamos intacto
+                if (!categoriasCargadas.includes(item.Tipo)) {
+                    seleccionados.push({
+                        Id: item.Id,
+                        Tipo: item.Tipo
+                    });
+                }
+            });
+
+            // PASO C: Iteramos sobre el DOM para sacar lo de las pestañas que SÍ se abrieron
             $(".item-row").each(function () {
                 const chk = $(this).find(".chk-item");
 
                 if (chk.is(":checked")) {
-
-                    // CAMBIO CRÍTICO 1: Usar .attr() en vez de .data()
-                    // .attr() obliga a leer el TEXTO exacto del HTML (el string encriptado)
                     var idEncriptado = $(this).attr("data-id");
                     var tipoDato = $(this).attr("data-tipo");
 
                     seleccionados.push({
-                        // CAMBIO CRÍTICO 2: Poner la primera letra en MAYÚSCULA (Id, Tipo)
-                        // para que coincida exactamente con tu clase C# ItemSeleccion
                         Id: idEncriptado,
                         Tipo: tipoDato
                     });
                 }
             });
 
-            // DEBUG: Muestra esto en la consola (F12) antes de que se envíe
-            //console.log("JSON a enviar:", JSON.stringify(seleccionados));
-
-            // Asignamos el valor al input hidden
             $("#seleccionadosJson").val(JSON.stringify(seleccionados));
 
             Swal.fire({
@@ -165,8 +179,8 @@ function confirmarSeleccion(event) {
                 showConfirmButton: true,
             });
 
+
             setTimeout(() => {
-                // Enviar el formulario
                 form.submit();
             }, 1400);
         }
