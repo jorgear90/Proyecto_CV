@@ -1,6 +1,13 @@
 ﻿function cargarVistaParcial(container, url) {
+
+    // 🔥 Obtener el idCv del hidden
+    let idCv = $('#idCvHidden').val();
+
+    // 🔥 Agregarlo a la URL
+    let urlFinal = url + '?idCv=' + idCv;
+
     $.ajax({
-        url: url,
+        url: urlFinal,
         type: 'GET',
         success: function (result) {
             container.hide().html(result);
@@ -14,6 +21,7 @@
         }
     });
 }
+
 
 $(document).ready(function () {
     // Función para abrir una opción específica
@@ -80,6 +88,7 @@ function confirmarSeleccion(event) {
     var form = $('#formSeleccion');
     var valor = $('.input-valor').val()?.trim();
     var nombreCv = $('.input-nombre-cv').val()?.trim();
+    var idCv = $('.input-id-cv').val()?.trim();
 
     if (!valor) {
         Swal.fire({
@@ -101,6 +110,7 @@ function confirmarSeleccion(event) {
 
     form.find('.hidden-encabezado').val(valor);
     form.find('.hidden-nombre-cv').val(nombreCv);
+    form.find('.hidden-id-cv').val(idCv);
 
     Swal.fire({
         title: 'Generar curriculum',

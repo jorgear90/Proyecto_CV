@@ -39,6 +39,10 @@
                     rel="noopener noreferrer">
                     Vista previa
                 </a> |
+                <a asp-action="VistaSeleccionar"
+                    asp-route-idEditar="@IdProtector.EncryptId(item.Id)">
+                    Editar
+                </a> |
                 <form asp-action="EliminarCv"
                         method="post"
                         style="display:inline">

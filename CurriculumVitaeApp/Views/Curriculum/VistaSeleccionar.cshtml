@@ -6,6 +6,8 @@
 
 <h1>Seleccionar items</h1>
 
+<input type="hidden" class="input-id-cv" id="idCvHidden" value="@ViewBag.IdCv" />
+
 <div class="form-group">
     <label class="control-label">Crear encabezado</label>
     <input type="text" name="encabezado" class="form-control input-valor" value="@ViewBag.Encabezado" required />
@@ -53,6 +55,7 @@
     <input type="hidden" name="seleccionadosJson" id="seleccionadosJson" />
     <input type="hidden" name="Encabezado" class="hidden-encabezado" />
     <input type="hidden" name="NombreCv" class="hidden-nombre-cv" />
+    <input type="hidden" name="idCv" class="hidden-id-cv" />
 
     <button type="submit" onclick="confirmarSeleccion(event)" class="btn btn-success">Generar PDF</button>
 </form>
