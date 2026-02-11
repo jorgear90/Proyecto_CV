@@ -10,7 +10,7 @@ namespace CurriculumVitaeApp.Models
         public int TipoDatoCurriculumID { get; set; }
         public int TipoDatoID { get; set; }
         public int CurriculumID { get; set; }
-        //public int Orden { get; set; }
+        public int Orden { get; set; }
 
         //Clave foranea
         [ForeignKey(nameof(CurriculumID))]
