@@ -8,6 +8,7 @@ namespace CurriculumVitaeApp.Models
         public int UsuarioID { get; set; }
         public string Nombre { get; set; }
         public string Encabezado { get; set; }
+        public string? Profesion {  get; set; }
         public DateOnly Fecha { get; set; }
 
         //Clave foranea

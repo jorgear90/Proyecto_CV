@@ -88,6 +88,7 @@ function confirmarSeleccion(event) {
     var form = $('#formSeleccion');
     var valor = $('.input-valor').val()?.trim();
     var nombreCv = $('.input-nombre-cv').val()?.trim();
+    var profesion = $('.input-profesion').val()?.trim();
     var idCv = $('.input-id-cv').val()?.trim();
 
     if (!valor) {
@@ -110,6 +111,7 @@ function confirmarSeleccion(event) {
 
     form.find('.hidden-encabezado').val(valor);
     form.find('.hidden-nombre-cv').val(nombreCv);
+    form.find('.hidden-profesion').val(profesion);
     form.find('.hidden-id-cv').val(idCv);
 
     Swal.fire({

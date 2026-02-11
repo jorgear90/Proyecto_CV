@@ -13,6 +13,8 @@
     <input type="text" name="encabezado" class="form-control input-valor" value="@ViewBag.Encabezado" required />
     <label class="control-label">Crear nombre de cv</label>
     <input type="text" name="nombreCv" class="form-control input-nombre-cv" value="@ViewBag.NombreCv" required />
+    <label class="control-label">Indique una pprofesion (opcional)</label>
+    <input type="text" name="profesion" class="form-control input-profesion" value="@ViewBag.Profesion" required />
 </div>
 
 <div class="opciones-container">
@@ -55,6 +57,7 @@
     <input type="hidden" name="seleccionadosJson" id="seleccionadosJson" />
     <input type="hidden" name="Encabezado" class="hidden-encabezado" />
     <input type="hidden" name="NombreCv" class="hidden-nombre-cv" />
+    <input type="hidden" name="Profesion" class="hidden-profesion" />
     <input type="hidden" name="idCv" class="hidden-id-cv" />
 
     <button type="submit" onclick="confirmarSeleccion(event)" class="btn btn-success">Generar PDF</button>

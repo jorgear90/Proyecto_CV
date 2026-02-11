@@ -66,17 +66,37 @@ namespace CurriculumVitaeApp.Controllers
             {
                 idsSeleccionados = await _context.CurriculumSeleccion
                     .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 1)
-                    .Select(cs => cs.TipoDatoID) 
+                    .OrderBy(cs => cs.Orden)
+                    .Select(cs => cs.TipoDatoID)
                     .ToHashSetAsync();
+            }
+
+            Dictionary<int, int> ordenSeleccionados = new();
+
+            if (idCv != 0)
+            {
+                ordenSeleccionados = await _context.CurriculumSeleccion
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 1)
+                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
             }
 
             ViewBag.IdsSeleccionados = idsSeleccionados;
 
-            var datosBasicos = _context.DatosBasicos
+            var datosBasicos = await _context.DatosBasicos
                 .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario);
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
 
-            return View(await datosBasicos.ToListAsync());
+            var datosOrdenados = datosBasicos
+                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
+                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
+                    ? ordenSeleccionados[d.Id]
+                    : int.MaxValue)
+                .ToList();
+
+
+
+            return View(datosOrdenados);
         }
 
         //Método GET para la vista parcial SelectorHabilidad
@@ -241,14 +261,17 @@ namespace CurriculumVitaeApp.Controllers
 
                 var encabezado = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Encabezado).FirstOrDefaultAsync();
                 var nombre = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Nombre).FirstOrDefaultAsync();
+                var profesion = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Profesion).FirstOrDefaultAsync();
 
                 ViewBag.Encabezado = encabezado;
                 ViewBag.NombreCv = nombre;
+                ViewBag.Profesion = profesion;
             }
             else
             {
                 ViewBag.Encabezado = " ";
                 ViewBag.NombreCv = " ";
+                ViewBag.Profesion = " ";
             }
 
             return View();
@@ -406,7 +429,7 @@ namespace CurriculumVitaeApp.Controllers
 
         //Este método recepciona y entrega los datos seleccionados para generar el curriculum
         [HttpPost]
-        public async Task<IActionResult> GenerarPDF(string seleccionadosJson, string encabezado, string nombreCv, int idCv)
+        public async Task<IActionResult> GenerarPDF(string seleccionadosJson, string encabezado, string nombreCv, string profesion, int idCv)
         {
             if (string.IsNullOrEmpty(seleccionadosJson))
             {
@@ -437,6 +460,7 @@ namespace CurriculumVitaeApp.Controllers
 
                 cv.Nombre = nombreCv;
                 cv.Encabezado = encabezado;
+                cv.Profesion = profesion;
                 cv.Fecha = DateOnly.FromDateTime(DateTime.Today);
 
                 _context.Update(cv);
@@ -472,6 +496,7 @@ namespace CurriculumVitaeApp.Controllers
                     UsuarioID = idUsuario,
                     Nombre = nombreCv,
                     Encabezado = encabezado,
+                    Profesion = profesion,
                     Fecha = DateOnly.FromDateTime(DateTime.Today),
 
                     //Orden = index++
@@ -481,58 +506,6 @@ namespace CurriculumVitaeApp.Controllers
 
                 curriculumId = nuevoCv.Id;
             }
-
-            //int curriculumId = await _context.Curriculum.Where( c => c.UsuarioID == idUsuario).Select(c => c.Id).FirstOrDefaultAsync();
-
-            //int valorId = await _context.Encabezados.Where( e => e.UsuarioID == idUsuario).Select(e => e.Id).FirstOrDefaultAsync();
-
-            
-
-            /*
-            if (curriculumId == 0)
-            {
-                var nuevoCv = new Curriculum
-                {
-                    UsuarioID = idUsuario,
-                    Nombre = nombreCv,
-                    Encabezado = encabezado,
-                    //Orden = index++
-                };
-                _context.Add(nuevoCv);
-                await _context.SaveChangesAsync();
-
-                curriculumId = nuevoCv.Id;
-            }
-            else
-            {
-                var cv = await _context.Curriculum.Where(c => c.Id == curriculumId).FirstOrDefaultAsync();
-
-                cv.Nombre = nombreCv;
-                cv.Encabezado = encabezado;
-
-                _context.Update(cv);
-                await _context.SaveChangesAsync();
-            }*/
-
-            /*if (valorId == 0)
-            {
-                var nuevoEncabezado = new EncabezadoCurriculum
-                {
-                    UsuarioID = idUsuario,
-                    ValorEncabezado = valor
-                    //Orden = index++
-                };
-                _context.Add(nuevoEncabezado);
-                await _context.SaveChangesAsync();
-            }
-            /*else
-            {
-                var encabezadoExiste = await _context.Encabezados.Where(e => e.UsuarioID == idUsuario).FirstOrDefaultAsync();
-                encabezadoExiste.ValorEncabezado = valor;
-
-                _context.Update(encabezadoExiste);
-                await _context.SaveChangesAsync();
-            }*/
 
             int index = 0;
 
@@ -554,7 +527,7 @@ namespace CurriculumVitaeApp.Controllers
                         CurriculumID = curriculumId,
                         TipoDatoCurriculumID = tipoDatoCurriculumID,
                         TipoDatoID = realId,
-                        //Orden = index++
+                        Orden = index++
                     };
                     _context.Add(nuevo);
                 }
@@ -640,9 +613,10 @@ namespace CurriculumVitaeApp.Controllers
 
             int idUsuario = await _context.Curriculum.Where(c => c.Id == curriculumId).Select(c => c.UsuarioID).FirstOrDefaultAsync();
 
-            var encabezado = await _context.Encabezados.Where(e => e.UsuarioID == idUsuario).Select(e => e.ValorEncabezado).FirstOrDefaultAsync();
+            var cv = await _context.Curriculum.Where(c => c.Id == curriculumId).FirstOrDefaultAsync();
 
-            var nombre = encabezado;
+            var profesion = cv.Profesion;
+            var nombre = cv.Encabezado;
             int paddingBottomSecciones = 20;
             int paddingBottomTitulos = 13;
 
@@ -661,11 +635,18 @@ namespace CurriculumVitaeApp.Controllers
 
                     // HEADER
                     page.Header()
-                        .PaddingBottom(20) // OK: Padding sobre el contenedor
+                        .PaddingBottom(2) 
                         .Text(text =>
                         {
                             text.AlignCenter();
                             text.Line(nombre).Bold().Underline().FontSize(24);
+
+                            text.Line("").FontSize(10);
+
+                            if (!string.IsNullOrEmpty(profesion)) {
+
+                                text.Line(profesion).Bold().FontSize(18);
+                            }
                         });
 
                     // CONTENIDO
