@@ -20,6 +20,7 @@ using System.Globalization;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Text.RegularExpressions;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.CodeAnalysis.Elfie.Serialization;
 
 namespace CurriculumVitaeApp.Controllers
 {
@@ -52,24 +53,19 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         // Método GET para la vista parcial DatosBasicos
-        public async Task<IActionResult> SelectorDatosBasicos()
+        public async Task<IActionResult> SelectorDatosBasicos(int? idCv)
         {
             var idUsuario = await getIdUsuario();
 
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            var curriculumId = await _context.Curriculum
-                .Where(c => c.UsuarioID == idUsuario)
-                .Select(c => c.Id)
-                .FirstOrDefaultAsync();
-
             var idsSeleccionados = new HashSet<int>();
 
-            if (curriculumId != 0) 
+            if (idCv != 0) 
             {
                 idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == curriculumId && cs.TipoDatoCurriculumID == 1)
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 1)
                     .Select(cs => cs.TipoDatoID) 
                     .ToHashSetAsync();
             }
@@ -84,26 +80,21 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         //Método GET para la vista parcial SelectorHabilidad
-        public async Task<IActionResult> SelectorHabilidad()
+        public async Task<IActionResult> SelectorHabilidad(int? idCv)
         {
             var idUsuario = await getIdUsuario();
 
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            var curriculumId = await _context.Curriculum
-                .Where(c => c.UsuarioID == idUsuario)
-                .Select(c => c.Id)
-                .FirstOrDefaultAsync();
-
             var idsSeleccionados = new HashSet<int>();
 
-            if (curriculumId != 0) 
+            if (idCv != 0)
             {
                 idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == curriculumId && cs.TipoDatoCurriculumID == 2)
-                    .Select(cs => cs.TipoDatoID) 
-                    .ToHashSetAsync(); 
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 2)
+                    .Select(cs => cs.TipoDatoID)
+                    .ToHashSetAsync();
             }
 
             ViewBag.IdsSeleccionados = idsSeleccionados;
@@ -116,26 +107,21 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         //Método GET para la vista parcial SelectorConocimiento
-        public async Task<IActionResult> SelectorConocimiento()
+        public async Task<IActionResult> SelectorConocimiento(int? idCv)
         {
             var idUsuario = await getIdUsuario();
 
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            var curriculumId = await _context.Curriculum
-                .Where(c => c.UsuarioID == idUsuario)
-                .Select(c => c.Id)
-                .FirstOrDefaultAsync();
-
             var idsSeleccionados = new HashSet<int>();
 
-            if (curriculumId != 0) 
+            if (idCv != 0)
             {
                 idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == curriculumId && cs.TipoDatoCurriculumID == 3)
-                    .Select(cs => cs.TipoDatoID) 
-                    .ToHashSetAsync(); 
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 3)
+                    .Select(cs => cs.TipoDatoID)
+                    .ToHashSetAsync();
             }
 
             ViewBag.IdsSeleccionados = idsSeleccionados;
@@ -148,24 +134,19 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         //Método GET para la vista parcial SelectorFormacionAcademica
-        public async Task<IActionResult> SelectorFormacionAcademica()
+        public async Task<IActionResult> SelectorFormacionAcademica(int? idCv)
         {
             var idUsuario = await getIdUsuario();
 
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            var curriculumId = await _context.Curriculum
-                .Where(c => c.UsuarioID == idUsuario)
-                .Select(c => c.Id)
-                .FirstOrDefaultAsync();
-
             var idsSeleccionados = new HashSet<int>();
 
-            if (curriculumId != 0)
+            if (idCv != 0)
             {
                 idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == curriculumId && cs.TipoDatoCurriculumID == 5)
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 5)
                     .Select(cs => cs.TipoDatoID)
                     .ToHashSetAsync();
             }
@@ -182,24 +163,19 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         //Método GET para la vista parcial SelectorExperienciaLaboral
-        public async Task<IActionResult> SelectorExperienciaLaboral()
+        public async Task<IActionResult> SelectorExperienciaLaboral(int? idCv)
         {
             var idUsuario = await getIdUsuario();
 
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            var curriculumId = await _context.Curriculum
-                .Where(c => c.UsuarioID == idUsuario)
-                .Select(c => c.Id)
-                .FirstOrDefaultAsync();
-
             var idsSeleccionados = new HashSet<int>();
 
-            if (curriculumId != 0)
+            if (idCv != 0)
             {
                 idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == curriculumId && cs.TipoDatoCurriculumID == 4)
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 4)
                     .Select(cs => cs.TipoDatoID)
                     .ToHashSetAsync();
             }
@@ -214,24 +190,19 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         // Método GET para la vista parcial DatosBasicos
-        public async Task<IActionResult> SelectorEnlaces()
+        public async Task<IActionResult> SelectorEnlaces(int? idCv)
         {
             var idUsuario = await getIdUsuario();
 
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            var curriculumId = await _context.Curriculum
-                .Where(c => c.UsuarioID == idUsuario)
-                .Select(c => c.Id)
-                .FirstOrDefaultAsync();
-
             var idsSeleccionados = new HashSet<int>();
 
-            if (curriculumId != 0)
+            if (idCv != 0)
             {
                 idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == curriculumId && cs.TipoDatoCurriculumID == 6)
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 6)
                     .Select(cs => cs.TipoDatoID)
                     .ToHashSetAsync();
             }
@@ -246,18 +217,39 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         // GET: Curriculum/Details/5
-        public async Task<IActionResult> VistaSeleccionar()
+        public async Task<IActionResult> VistaSeleccionar(string? idEditar)
         {
             var idUsuario = await getIdUsuario();
 
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            var encabezado = await _context.Curriculum.Where( e => e.UsuarioID == idUsuario).Select( e => e.Encabezado).FirstOrDefaultAsync();
-            var nombre = await _context.Curriculum.Where(e => e.UsuarioID == idUsuario).Select(e => e.Nombre).FirstOrDefaultAsync();
+            if(idEditar != null) {
 
-            ViewBag.Encabezado = encabezado;
-            ViewBag.NombreCv = nombre;
+                int realId;
+
+                try
+                {
+                    realId = _idProtector.DecryptId(idEditar);
+                }
+                catch
+                {
+                    return BadRequest("ID inválido");
+                }
+
+                ViewBag.IdCv = realId;
+
+                var encabezado = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Encabezado).FirstOrDefaultAsync();
+                var nombre = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Nombre).FirstOrDefaultAsync();
+
+                ViewBag.Encabezado = encabezado;
+                ViewBag.NombreCv = nombre;
+            }
+            else
+            {
+                ViewBag.Encabezado = " ";
+                ViewBag.NombreCv = " ";
+            }
 
             return View();
         }
@@ -414,7 +406,7 @@ namespace CurriculumVitaeApp.Controllers
 
         //Este método recepciona y entrega los datos seleccionados para generar el curriculum
         [HttpPost]
-        public async Task<IActionResult> GenerarPDF(string seleccionadosJson, string encabezado, string nombreCv)
+        public async Task<IActionResult> GenerarPDF(string seleccionadosJson, string encabezado, string nombreCv, int idCv)
         {
             if (string.IsNullOrEmpty(seleccionadosJson))
             {
@@ -437,24 +429,64 @@ namespace CurriculumVitaeApp.Controllers
                 return RedirectToAction("VistaSeleccionar"); 
             }
 
+            var curriculumId = 0;
+
+            if(idCv != 0)
+            {
+                var cv = await _context.Curriculum.Where(c => c.Id == idCv).FirstOrDefaultAsync();
+
+                cv.Nombre = nombreCv;
+                cv.Encabezado = encabezado;
+                cv.Fecha = DateOnly.FromDateTime(DateTime.Today);
+
+                _context.Update(cv);
+                await _context.SaveChangesAsync();
+
+                curriculumId = cv.Id;
+
+                // 👉 Eliminar archivo físico
+                var rutaArchivo = Path.Combine(
+                    _env.WebRootPath,
+                    "cv-usuarios",
+                    idUsuario.ToString(),
+                    $"{cv.Id}.pdf"
+                );
+
+                if (System.IO.File.Exists(rutaArchivo))
+                {
+                    System.IO.File.Delete(rutaArchivo);
+                }
+
+                var carpetaUsuario = Path.GetDirectoryName(rutaArchivo);
+
+                if (Directory.Exists(carpetaUsuario) &&
+                    !Directory.EnumerateFileSystemEntries(carpetaUsuario).Any())
+                {
+                    Directory.Delete(carpetaUsuario);
+                }
+            }
+            else
+            {
+                var nuevoCv = new Curriculum
+                {
+                    UsuarioID = idUsuario,
+                    Nombre = nombreCv,
+                    Encabezado = encabezado,
+                    Fecha = DateOnly.FromDateTime(DateTime.Today),
+
+                    //Orden = index++
+                };
+                _context.Add(nuevoCv);
+                await _context.SaveChangesAsync();
+
+                curriculumId = nuevoCv.Id;
+            }
 
             //int curriculumId = await _context.Curriculum.Where( c => c.UsuarioID == idUsuario).Select(c => c.Id).FirstOrDefaultAsync();
 
             //int valorId = await _context.Encabezados.Where( e => e.UsuarioID == idUsuario).Select(e => e.Id).FirstOrDefaultAsync();
 
-            var nuevoCv = new Curriculum
-            {
-                UsuarioID = idUsuario,
-                Nombre = nombreCv,
-                Encabezado = encabezado,
-                Fecha = DateOnly.FromDateTime(DateTime.Today),
-                
-                //Orden = index++
-            };
-            _context.Add(nuevoCv);
-            await _context.SaveChangesAsync();
-
-            var curriculumId = nuevoCv.Id;
+            
 
             /*
             if (curriculumId == 0)
