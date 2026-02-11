@@ -37,21 +37,67 @@ namespace CurriculumVitaeApp.Controllers
             _env = env;
         }
 
-        public async Task<IActionResult> MisCurriculums()
+        // Vista contenedora para seleccionar los items que se incluiran el el cv
+        public async Task<IActionResult> VistaSeleccionar(string? idEditar)
         {
             var idUsuario = await getIdUsuario();
 
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            var curriculums = await _context.Curriculum
-                .Where(c => c.UsuarioID == idUsuario)
-                .OrderBy(c => c.Fecha)
-                .ToListAsync();
+            if (idEditar != null)
+            {
 
-            return View(curriculums);
+                int realId;
+
+                try
+                {
+                    realId = _idProtector.DecryptId(idEditar);
+                }
+                catch
+                {
+                    return BadRequest("ID inválido");
+                }
+
+                var seleccionesPrevias = new List<object>();
+
+                if (realId != 0)
+                {
+                    // Buscamos todo lo que ya está guardado para este CV
+                    var selecciones = await _context.CurriculumSeleccion
+                        .Where(cs => cs.CurriculumID == realId)
+                        .ToListAsync();
+
+                    // Lo mapeamos al mismo formato que usas en JS y encriptamos el ID
+                    seleccionesPrevias = selecciones.Select(cs => new {
+                        Id = _idProtector.EncryptId(cs.TipoDatoID),
+                        Tipo = cs.TipoDatoCurriculumID.ToString()
+                    }).Cast<object>().ToList();
+                }
+
+                // Pasamos el JSON a la vista
+                ViewBag.SeleccionesPreviasJson = System.Text.Json.JsonSerializer.Serialize(seleccionesPrevias);
+                ViewBag.IdCv = realId;
+
+                var encabezado = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Encabezado).FirstOrDefaultAsync();
+                var nombre = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Nombre).FirstOrDefaultAsync();
+                var profesion = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Profesion).FirstOrDefaultAsync();
+
+                ViewBag.Encabezado = encabezado;
+                ViewBag.NombreCv = nombre;
+                ViewBag.Profesion = profesion;
+            }
+            else
+            {
+                ViewBag.Encabezado = " ";
+                ViewBag.NombreCv = " ";
+                ViewBag.Profesion = " ";
+            }
+
+            return View();
         }
 
+        //VISTAS PARCIALES: vistas que estan dentro de la vista contenedora VistaSeleccionar
         // Método GET para la vista parcial DatosBasicos
         public async Task<IActionResult> SelectorDatosBasicos(int? idCv)
         {
@@ -287,7 +333,7 @@ namespace CurriculumVitaeApp.Controllers
             return View(datosOrdenados);
         }
 
-        // Método GET para la vista parcial DatosBasicos
+        // Método GET para la vista parcial para Enlaces o links
         public async Task<IActionResult> SelectorEnlaces(int? idCv)
         {
             var idUsuario = await getIdUsuario();
@@ -335,65 +381,24 @@ namespace CurriculumVitaeApp.Controllers
             return View(datosOrdenados);
         }
 
-        // GET: Curriculum/Details/5
-        public async Task<IActionResult> VistaSeleccionar(string? idEditar)
+        //VISTA: MisCurriculums
+        //Método que configura la vista que muestra los cvs creados y sus respectivas acciones
+        public async Task<IActionResult> MisCurriculums()
         {
             var idUsuario = await getIdUsuario();
 
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
-            if(idEditar != null) {
+            var curriculums = await _context.Curriculum
+                .Where(c => c.UsuarioID == idUsuario)
+                .OrderBy(c => c.Fecha)
+                .ToListAsync();
 
-                int realId;
-
-                try
-                {
-                    realId = _idProtector.DecryptId(idEditar);
-                }
-                catch
-                {
-                    return BadRequest("ID inválido");
-                }
-
-                var seleccionesPrevias = new List<object>();
-
-                if (realId != 0)
-                {
-                    // Buscamos todo lo que ya está guardado para este CV
-                    var selecciones = await _context.CurriculumSeleccion
-                        .Where(cs => cs.CurriculumID == realId)
-                        .ToListAsync();
-
-                    // Lo mapeamos al mismo formato que usas en JS y encriptamos el ID
-                    seleccionesPrevias = selecciones.Select(cs => new {
-                        Id = _idProtector.EncryptId(cs.TipoDatoID),
-                        Tipo = cs.TipoDatoCurriculumID.ToString()
-                    }).Cast<object>().ToList();
-                }
-
-                // Pasamos el JSON a la vista
-                ViewBag.SeleccionesPreviasJson = System.Text.Json.JsonSerializer.Serialize(seleccionesPrevias);
-                ViewBag.IdCv = realId;
-
-                var encabezado = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Encabezado).FirstOrDefaultAsync();
-                var nombre = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Nombre).FirstOrDefaultAsync();
-                var profesion = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Profesion).FirstOrDefaultAsync();
-
-                ViewBag.Encabezado = encabezado;
-                ViewBag.NombreCv = nombre;
-                ViewBag.Profesion = profesion;
-            }
-            else
-            {
-                ViewBag.Encabezado = " ";
-                ViewBag.NombreCv = " ";
-                ViewBag.Profesion = " ";
-            }
-
-            return View();
+            return View(curriculums);
         }
 
+        //ACCIONES para cvs creados que se pueden ver en la vista MisCurriculums()
         //Función que permite descargar un cv desde la vista misCurriculums
         [HttpGet]
         public async Task<IActionResult> DescargarCv(string idDescargar)
@@ -543,7 +548,7 @@ namespace CurriculumVitaeApp.Controllers
             return File(fileBytes, "application/pdf");
         }
 
-
+        //GENERACIÓN DE PDF: métodos que permiten el guardado y creación de un cv
         //Este método recepciona y entrega los datos seleccionados para generar el curriculum
         [HttpPost]
         public async Task<IActionResult> GenerarPDF(string seleccionadosJson, string encabezado, string nombreCv, string profesion, int idCv)
@@ -562,12 +567,6 @@ namespace CurriculumVitaeApp.Controllers
                 return RedirectToAction("Login", "Usuarios");
 
             var cantidadCv = await _context.Curriculum.CountAsync(u => u.UsuarioID == idUsuario);
-
-            if (cantidadCv >= 5)
-            {
-                TempData["SwalError"] = "Has alcanzado el límite máximo de 5 currículums. Para crear uno nuevo, elimina alguno de los existentes.";
-                return RedirectToAction("VistaSeleccionar"); 
-            }
 
             var curriculumId = 0;
 
@@ -606,8 +605,14 @@ namespace CurriculumVitaeApp.Controllers
                     Directory.Delete(carpetaUsuario);
                 }
             }
+            else if (cantidadCv >= 5)
+            {
+                TempData["SwalError"] = "Has alcanzado el límite máximo de 5 currículums. Para crear uno nuevo, elimina alguno de los existentes.";
+                return RedirectToAction("VistaSeleccionar");
+            }
             else
             {
+
                 var nuevoCv = new Curriculum
                 {
                     UsuarioID = idUsuario,
@@ -975,7 +980,7 @@ namespace CurriculumVitaeApp.Controllers
             return bytes;
         }
 
-        //Configura palabras escritas el markdown
+        //Configura palabras escritas el markdown para generar el cv
         void RenderMarkdown(TextDescriptor text, string markdown, float fontSize = 12)
         {
             var parts = Regex.Split(markdown, @"(\*\*.*?\*\*)");
@@ -987,36 +992,6 @@ namespace CurriculumVitaeApp.Controllers
                 else
                     text.Span(part).FontSize(fontSize);
             }
-        }
-
-
-        // helper style
-        IContainer CellStyle(IContainer container)
-        {
-            return container.PaddingVertical(2).PaddingRight(4);
-        }
-
-        //Este método permite obtener el id del usuario por medio del token
-        public async Task<int> getIdUsuario()
-        {
-            var token = Request.Cookies["jwtToken"];
-
-            if (string.IsNullOrEmpty(token))
-            {
-                return 0;
-            }
-
-            // Decodificar el token
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-
-            // Obtener el claim del correo
-            var correo = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
-
-            var idUsuario = await _context.Usuarios.Where(u => u.Correo == correo).Select(u => u.Id).FirstOrDefaultAsync();
-
-            return idUsuario;
-
         }
 
         //Método que almacena los cvs en el disco de la aplicación
@@ -1086,6 +1061,36 @@ namespace CurriculumVitaeApp.Controllers
                 text.Span(input.Substring(lastIndex))
                     .FontSize(12); // Aplica tamaño aquí
             }
+        }
+
+        // helper style
+        IContainer CellStyle(IContainer container)
+        {
+            return container.PaddingVertical(2).PaddingRight(4);
+        }
+
+        //ID USURIO
+        //Este método permite obtener el id del usuario por medio del token
+        public async Task<int> getIdUsuario()
+        {
+            var token = Request.Cookies["jwtToken"];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return 0;
+            }
+
+            // Decodificar el token
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            // Obtener el claim del correo
+            var correo = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            var idUsuario = await _context.Usuarios.Where(u => u.Correo == correo).Select(u => u.Id).FirstOrDefaultAsync();
+
+            return idUsuario;
+
         }
 
         private bool CurriculumExists(int id)
