@@ -7,6 +7,7 @@
 <h1>Seleccionar items</h1>
 
 <input type="hidden" class="input-id-cv" id="idCvHidden" value="@ViewBag.IdCv" />
+<input type="hidden" id="seleccionesPreviasHidden" value='@Html.Raw(ViewBag.SeleccionesPreviasJson ?? "[]")' />
 
 <div class="form-group">
     <label class="control-label">Crear encabezado</label>
@@ -18,35 +19,35 @@
 </div>
 
 <div class="opciones-container">
-    <div class="opcion" data-url="/Curriculum/SelectorDatosBasicos">
+    <div class="opcion" data-url="/Curriculum/SelectorDatosBasicos" data-tipo="1">
         <button class="btn-toggle">+</button>
         <span class="titulo">Datos Básicos</span>
         <div class="contenido-parcial"></div>
     </div>
 
-    <div class="opcion" data-url="/Curriculum/SelectorExperienciaLaboral">
+    <div class="opcion" data-url="/Curriculum/SelectorExperienciaLaboral" data-tipo="4">
         <button class="btn-toggle">+</button>
         <span class="titulo">Experiencia Laboral</span>
         <div class="contenido-parcial"></div>
     </div>
 
-    <div class="opcion" data-url="/Curriculum/SelectorFormacionAcademica">
+    <div class="opcion" data-url="/Curriculum/SelectorFormacionAcademica" data-tipo="5">
         <button class="btn-toggle">+</button>
         <span class="titulo">Formación académica</span>
         <div class="contenido-parcial"></div>
     </div>
 
-    <div class="opcion" data-url="/Curriculum/SelectorHabilidad">
+    <div class="opcion" data-url="/Curriculum/SelectorHabilidad" data-tipo="2">
         <button class="btn-toggle">+</button>
         <span class="titulo">Habilidades blandas</span>
         <div class="contenido-parcial"></div>
     </div>
-    <div class="opcion" data-url="/Curriculum/SelectorConocimiento">
+    <div class="opcion" data-url="/Curriculum/SelectorConocimiento" data-tipo="3">
         <button class="btn-toggle">+</button>
         <span class="titulo">Conocimientos técnicos</span>
         <div class="contenido-parcial"></div>
     </div>
-    <div class="opcion" data-url="/Curriculum/SelectorEnlaces">
+    <div class="opcion" data-url="/Curriculum/SelectorEnlaces" data-tipo="6">
         <button class="btn-toggle">+</button>
         <span class="titulo">Enlaces</span>
         <div class="contenido-parcial"></div>

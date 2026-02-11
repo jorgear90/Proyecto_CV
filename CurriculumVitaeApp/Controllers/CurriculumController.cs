@@ -117,13 +117,32 @@ namespace CurriculumVitaeApp.Controllers
                     .ToHashSetAsync();
             }
 
+            Dictionary<int, int> ordenSeleccionados = new();
+
+            if (idCv != 0)
+            {
+                ordenSeleccionados = await _context.CurriculumSeleccion
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 2)
+                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
+            }
+
             ViewBag.IdsSeleccionados = idsSeleccionados;
 
-            var habilidades = _context.Habilidades
+            var habilidades = await _context.Habilidades
                 .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario);
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
 
-            return View(await habilidades.ToListAsync());
+            var datosOrdenados = habilidades
+                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
+                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
+                    ? ordenSeleccionados[d.Id]
+                    : int.MaxValue)
+                .ToList();
+
+
+
+            return View(datosOrdenados);
         }
 
         //Método GET para la vista parcial SelectorConocimiento
@@ -144,13 +163,32 @@ namespace CurriculumVitaeApp.Controllers
                     .ToHashSetAsync();
             }
 
+            Dictionary<int, int> ordenSeleccionados = new();
+
+            if (idCv != 0)
+            {
+                ordenSeleccionados = await _context.CurriculumSeleccion
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 3)
+                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
+            }
+
             ViewBag.IdsSeleccionados = idsSeleccionados;
 
-            var conocimientos = _context.Conocimientos
+            var conocimientos = await _context.Conocimientos
                 .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario);
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
 
-            return View(await conocimientos.ToListAsync());
+            var datosOrdenados = conocimientos
+                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
+                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
+                    ? ordenSeleccionados[d.Id]
+                    : int.MaxValue)
+                .ToList();
+
+
+
+            return View(datosOrdenados);
         }
 
         //Método GET para la vista parcial SelectorFormacionAcademica
@@ -173,13 +211,32 @@ namespace CurriculumVitaeApp.Controllers
 
             ViewBag.IdsSeleccionados = idsSeleccionados;
 
-            var antecedentesAcademicos = _context.FormacionAcademica
+            Dictionary<int, int> ordenSeleccionados = new();
+
+            if (idCv != 0)
+            {
+                ordenSeleccionados = await _context.CurriculumSeleccion
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 5)
+                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
+            }
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            var formacionAcademica = await _context.FormacionAcademica
                 .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario);
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            var datosOrdenados = formacionAcademica
+                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
+                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
+                    ? ordenSeleccionados[d.Id]
+                    : int.MaxValue)
+                .ToList();
 
             ViewData["TipoInstitucionID"] = new SelectList(_context.TipoInstitucion, "ID", "Tipo");
 
-            return View(await antecedentesAcademicos.ToListAsync());
+            return View(datosOrdenados);
         }
 
         //Método GET para la vista parcial SelectorExperienciaLaboral
@@ -202,11 +259,32 @@ namespace CurriculumVitaeApp.Controllers
 
             ViewBag.IdsSeleccionados = idsSeleccionados;
 
-            var antecedentesLaborales = _context.ExperienciaLaboral
-                .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario);
+            Dictionary<int, int> ordenSeleccionados = new();
 
-            return View(await antecedentesLaborales.ToListAsync());
+            if (idCv != 0)
+            {
+                ordenSeleccionados = await _context.CurriculumSeleccion
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 4)
+                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
+            }
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            var experienciaLaboral = await _context.ExperienciaLaboral
+                .Include(d => d.Usuarios)
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            var datosOrdenados = experienciaLaboral
+                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
+                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
+                    ? ordenSeleccionados[d.Id]
+                    : int.MaxValue)
+                .ToList();
+
+
+
+            return View(datosOrdenados);
         }
 
         // Método GET para la vista parcial DatosBasicos
@@ -229,11 +307,32 @@ namespace CurriculumVitaeApp.Controllers
 
             ViewBag.IdsSeleccionados = idsSeleccionados;
 
-            var enlaces = _context.Enlaces
-                .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario);
+            Dictionary<int, int> ordenSeleccionados = new();
 
-            return View(await enlaces.ToListAsync());
+            if (idCv != 0)
+            {
+                ordenSeleccionados = await _context.CurriculumSeleccion
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 6)
+                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
+            }
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            var enlaces = await _context.Enlaces
+                .Include(d => d.Usuarios)
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            var datosOrdenados = enlaces
+                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
+                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
+                    ? ordenSeleccionados[d.Id]
+                    : int.MaxValue)
+                .ToList();
+
+
+
+            return View(datosOrdenados);
         }
 
         // GET: Curriculum/Details/5
@@ -257,6 +356,24 @@ namespace CurriculumVitaeApp.Controllers
                     return BadRequest("ID inválido");
                 }
 
+                var seleccionesPrevias = new List<object>();
+
+                if (realId != 0)
+                {
+                    // Buscamos todo lo que ya está guardado para este CV
+                    var selecciones = await _context.CurriculumSeleccion
+                        .Where(cs => cs.CurriculumID == realId)
+                        .ToListAsync();
+
+                    // Lo mapeamos al mismo formato que usas en JS y encriptamos el ID
+                    seleccionesPrevias = selecciones.Select(cs => new {
+                        Id = _idProtector.EncryptId(cs.TipoDatoID),
+                        Tipo = cs.TipoDatoCurriculumID.ToString()
+                    }).Cast<object>().ToList();
+                }
+
+                // Pasamos el JSON a la vista
+                ViewBag.SeleccionesPreviasJson = System.Text.Json.JsonSerializer.Serialize(seleccionesPrevias);
                 ViewBag.IdCv = realId;
 
                 var encabezado = await _context.Curriculum.Where(e => e.Id == realId).Select(e => e.Encabezado).FirstOrDefaultAsync();
