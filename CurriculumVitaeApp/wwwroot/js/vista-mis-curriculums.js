@@ -1,4 +1,6 @@
 ﻿//Este js es de la vista MisCurriculums
+
+// Alerta que solicita que el usuario confirme la eliminación de un cv y su respectivo registro. 
 function confirmarEliminacion(event) {
     event.preventDefault();
 

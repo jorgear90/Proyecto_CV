@@ -19,7 +19,6 @@ namespace CurriculumVitaeApp.Models
         public virtual ICollection<Habilidad> Habilidades { get; set; } = new List<Habilidad>();
         public virtual ICollection<Conocimiento> Conocimientos { get; set; } = new List<Conocimiento>();
         public virtual ICollection<Curriculum> Curriculums { get; set; } = new List<Curriculum>();
-        public virtual ICollection<EncabezadoCurriculum> Encabezados { get; set; } = new List<EncabezadoCurriculum>();
         public virtual ICollection<Link> Links { get; set; } = new List<Link>();
     }
 }

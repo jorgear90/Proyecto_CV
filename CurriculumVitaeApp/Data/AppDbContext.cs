@@ -19,7 +19,6 @@ namespace CurriculumVitaeApp.Data
         public DbSet<TipoInstitucion> TipoInstitucion { get; set; }
         public DbSet<Curriculum> Curriculum { get; set; }
         public DbSet<CurriculumSeleccion> CurriculumSeleccion { get; set; }
-        public DbSet<EncabezadoCurriculum> Encabezados { get; set; }
         public DbSet<Link> Enlaces { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

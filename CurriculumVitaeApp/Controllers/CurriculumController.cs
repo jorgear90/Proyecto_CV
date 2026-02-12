@@ -21,6 +21,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using System.Text.RegularExpressions;
 using static System.Net.Mime.MediaTypeNames;
 using Microsoft.CodeAnalysis.Elfie.Serialization;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace CurriculumVitaeApp.Controllers
 {
@@ -106,9 +107,132 @@ namespace CurriculumVitaeApp.Controllers
             if (idUsuario == 0)
                 return RedirectToAction("Login", "Usuarios");
 
+            var datosBasicos = await _context.DatosBasicos
+                .Include(d => d.Usuarios)
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            var (resultado, idsSeleccionados) = await ObtenerDatosOrdenados(idCv, 1, datosBasicos, d => d.Id);
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            return View(resultado);
+        }
+
+        //Método GET para la vista parcial SelectorHabilidad
+        public async Task<IActionResult> SelectorHabilidad(int? idCv)
+        {
+            var idUsuario = await getIdUsuario();
+
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            var habilidades = await _context.Habilidades
+                .Include(d => d.Usuarios)
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            var (resultado, idsSeleccionados) = await ObtenerDatosOrdenados(idCv, 2, habilidades, d => d.Id);
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            return View(resultado);
+        }
+
+        //Método GET para la vista parcial SelectorConocimiento
+        public async Task<IActionResult> SelectorConocimiento(int? idCv)
+        {
+            var idUsuario = await getIdUsuario();
+
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            var conocimientos = await _context.Conocimientos
+                .Include(d => d.Usuarios)
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            var (resultado, idsSeleccionados) = await ObtenerDatosOrdenados(idCv, 3, conocimientos, d => d.Id);
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            return View(resultado);
+        }
+
+        //Método GET para la vista parcial SelectorFormacionAcademica
+        public async Task<IActionResult> SelectorFormacionAcademica(int? idCv)
+        {
+            var idUsuario = await getIdUsuario();
+
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            var formacionAcademica = await _context.FormacionAcademica
+                .Include(d => d.Usuarios)
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            var (resultado, idsSeleccionados) = await ObtenerDatosOrdenados(idCv, 5, formacionAcademica, d => d.Id);
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            return View(resultado);
+
+        }
+
+        //Método GET para la vista parcial SelectorExperienciaLaboral
+        public async Task<IActionResult> SelectorExperienciaLaboral(int? idCv)
+        {
+            var idUsuario = await getIdUsuario();
+
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            var experienciaLaboral = await _context.ExperienciaLaboral
+                .Include(d => d.Usuarios)
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            var (resultado, idsSeleccionados) = await ObtenerDatosOrdenados(idCv, 4, experienciaLaboral, d => d.Id);
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            return View(resultado);
+
+        }
+
+        // Método GET para la vista parcial para Enlaces o links
+        public async Task<IActionResult> SelectorEnlaces(int? idCv)
+        {
+            var idUsuario = await getIdUsuario();
+
+            if (idUsuario == 0)
+                return RedirectToAction("Login", "Usuarios");
+
+            var enlaces = await _context.Enlaces
+                .Include(d => d.Usuarios)
+                .Where(d => d.UsuarioID == idUsuario)
+                .ToListAsync();
+
+            var (resultado, idsSeleccionados) = await ObtenerDatosOrdenados(idCv, 6, enlaces, d => d.Id);
+
+            ViewBag.IdsSeleccionados = idsSeleccionados;
+
+            return View(resultado);
+
+        }
+
+        // Devuelve una lista para las vistas parciales
+        private async Task<(List<T> listaOrdenada, HashSet<int> idsSeleccionados)>
+        ObtenerDatosOrdenados<T>(
+            int? idCv,
+            int tipoDatoId,
+            List<T> listaDeItems,
+            Func<T, int> obtenerId)
+        {
             var idsSeleccionados = new HashSet<int>();
 
-            if (idCv != 0) 
+            if (idCv != 0)
             {
                 idsSeleccionados = await _context.CurriculumSeleccion
                     .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 1)
@@ -126,260 +250,16 @@ namespace CurriculumVitaeApp.Controllers
                     .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
             }
 
-            ViewBag.IdsSeleccionados = idsSeleccionados;
-
-            var datosBasicos = await _context.DatosBasicos
-                .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario)
-                .ToListAsync();
-
-            var datosOrdenados = datosBasicos
-                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
-                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
-                    ? ordenSeleccionados[d.Id]
+            var datosOrdenados = listaDeItems
+                .OrderBy(d => idsSeleccionados.Contains(obtenerId(d)) ? 0 : 1)
+                .ThenBy(d => ordenSeleccionados.ContainsKey(obtenerId(d))
+                    ? ordenSeleccionados[obtenerId(d)]
                     : int.MaxValue)
                 .ToList();
 
-
-
-            return View(datosOrdenados);
+            return (datosOrdenados, idsSeleccionados);
         }
 
-        //Método GET para la vista parcial SelectorHabilidad
-        public async Task<IActionResult> SelectorHabilidad(int? idCv)
-        {
-            var idUsuario = await getIdUsuario();
-
-            if (idUsuario == 0)
-                return RedirectToAction("Login", "Usuarios");
-
-            var idsSeleccionados = new HashSet<int>();
-
-            if (idCv != 0)
-            {
-                idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 2)
-                    .Select(cs => cs.TipoDatoID)
-                    .ToHashSetAsync();
-            }
-
-            Dictionary<int, int> ordenSeleccionados = new();
-
-            if (idCv != 0)
-            {
-                ordenSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 2)
-                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
-            }
-
-            ViewBag.IdsSeleccionados = idsSeleccionados;
-
-            var habilidades = await _context.Habilidades
-                .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario)
-                .ToListAsync();
-
-            var datosOrdenados = habilidades
-                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
-                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
-                    ? ordenSeleccionados[d.Id]
-                    : int.MaxValue)
-                .ToList();
-
-
-
-            return View(datosOrdenados);
-        }
-
-        //Método GET para la vista parcial SelectorConocimiento
-        public async Task<IActionResult> SelectorConocimiento(int? idCv)
-        {
-            var idUsuario = await getIdUsuario();
-
-            if (idUsuario == 0)
-                return RedirectToAction("Login", "Usuarios");
-
-            var idsSeleccionados = new HashSet<int>();
-
-            if (idCv != 0)
-            {
-                idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 3)
-                    .Select(cs => cs.TipoDatoID)
-                    .ToHashSetAsync();
-            }
-
-            Dictionary<int, int> ordenSeleccionados = new();
-
-            if (idCv != 0)
-            {
-                ordenSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 3)
-                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
-            }
-
-            ViewBag.IdsSeleccionados = idsSeleccionados;
-
-            var conocimientos = await _context.Conocimientos
-                .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario)
-                .ToListAsync();
-
-            var datosOrdenados = conocimientos
-                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
-                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
-                    ? ordenSeleccionados[d.Id]
-                    : int.MaxValue)
-                .ToList();
-
-
-
-            return View(datosOrdenados);
-        }
-
-        //Método GET para la vista parcial SelectorFormacionAcademica
-        public async Task<IActionResult> SelectorFormacionAcademica(int? idCv)
-        {
-            var idUsuario = await getIdUsuario();
-
-            if (idUsuario == 0)
-                return RedirectToAction("Login", "Usuarios");
-
-            var idsSeleccionados = new HashSet<int>();
-
-            if (idCv != 0)
-            {
-                idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 5)
-                    .Select(cs => cs.TipoDatoID)
-                    .ToHashSetAsync();
-            }
-
-            ViewBag.IdsSeleccionados = idsSeleccionados;
-
-            Dictionary<int, int> ordenSeleccionados = new();
-
-            if (idCv != 0)
-            {
-                ordenSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 5)
-                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
-            }
-
-            ViewBag.IdsSeleccionados = idsSeleccionados;
-
-            var formacionAcademica = await _context.FormacionAcademica
-                .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario)
-                .ToListAsync();
-
-            var datosOrdenados = formacionAcademica
-                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
-                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
-                    ? ordenSeleccionados[d.Id]
-                    : int.MaxValue)
-                .ToList();
-
-            ViewData["TipoInstitucionID"] = new SelectList(_context.TipoInstitucion, "ID", "Tipo");
-
-            return View(datosOrdenados);
-        }
-
-        //Método GET para la vista parcial SelectorExperienciaLaboral
-        public async Task<IActionResult> SelectorExperienciaLaboral(int? idCv)
-        {
-            var idUsuario = await getIdUsuario();
-
-            if (idUsuario == 0)
-                return RedirectToAction("Login", "Usuarios");
-
-            var idsSeleccionados = new HashSet<int>();
-
-            if (idCv != 0)
-            {
-                idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 4)
-                    .Select(cs => cs.TipoDatoID)
-                    .ToHashSetAsync();
-            }
-
-            ViewBag.IdsSeleccionados = idsSeleccionados;
-
-            Dictionary<int, int> ordenSeleccionados = new();
-
-            if (idCv != 0)
-            {
-                ordenSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 4)
-                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
-            }
-
-            ViewBag.IdsSeleccionados = idsSeleccionados;
-
-            var experienciaLaboral = await _context.ExperienciaLaboral
-                .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario)
-                .ToListAsync();
-
-            var datosOrdenados = experienciaLaboral
-                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
-                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
-                    ? ordenSeleccionados[d.Id]
-                    : int.MaxValue)
-                .ToList();
-
-
-
-            return View(datosOrdenados);
-        }
-
-        // Método GET para la vista parcial para Enlaces o links
-        public async Task<IActionResult> SelectorEnlaces(int? idCv)
-        {
-            var idUsuario = await getIdUsuario();
-
-            if (idUsuario == 0)
-                return RedirectToAction("Login", "Usuarios");
-
-            var idsSeleccionados = new HashSet<int>();
-
-            if (idCv != 0)
-            {
-                idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 6)
-                    .Select(cs => cs.TipoDatoID)
-                    .ToHashSetAsync();
-            }
-
-            ViewBag.IdsSeleccionados = idsSeleccionados;
-
-            Dictionary<int, int> ordenSeleccionados = new();
-
-            if (idCv != 0)
-            {
-                ordenSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 6)
-                    .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
-            }
-
-            ViewBag.IdsSeleccionados = idsSeleccionados;
-
-            var enlaces = await _context.Enlaces
-                .Include(d => d.Usuarios)
-                .Where(d => d.UsuarioID == idUsuario)
-                .ToListAsync();
-
-            var datosOrdenados = enlaces
-                .OrderBy(d => idsSeleccionados.Contains(d.Id) ? 0 : 1)
-                .ThenBy(d => ordenSeleccionados.ContainsKey(d.Id)
-                    ? ordenSeleccionados[d.Id]
-                    : int.MaxValue)
-                .ToList();
-
-
-
-            return View(datosOrdenados);
-        }
 
         //VISTA: MisCurriculums
         //Método que configura la vista que muestra los cvs creados y sus respectivas acciones
@@ -544,7 +424,7 @@ namespace CurriculumVitaeApp.Controllers
 
             var fileBytes = await System.IO.File.ReadAllBytesAsync(rutaArchivo);
 
-            // 👀 Vista previa (inline)
+            // Vista previa (inline)
             return File(fileBytes, "application/pdf");
         }
 
@@ -584,7 +464,7 @@ namespace CurriculumVitaeApp.Controllers
 
                 curriculumId = cv.Id;
 
-                // 👉 Eliminar archivo físico
+                // Eliminar archivo físico
                 var rutaArchivo = Path.Combine(
                     _env.WebRootPath,
                     "cv-usuarios",
@@ -705,7 +585,6 @@ namespace CurriculumVitaeApp.Controllers
             {
                 switch (s.TipoDatoCurriculumID)
                 {
-                    //case "Perfil":
                     case 1:
                         var d = await _context.DatosBasicos.FindAsync(s.TipoDatoID);
                         if (d != null) datos.Add(d);
@@ -742,7 +621,6 @@ namespace CurriculumVitaeApp.Controllers
             int paddingBottomSecciones = 20;
             int paddingBottomTitulos = 13;
 
-            // Columnas consistentes en todas las secciones
             const float ColLeft = 1;
             const float ColRight = 1;
 
@@ -793,15 +671,11 @@ namespace CurriculumVitaeApp.Controllers
                                         r.RelativeColumn(ColRight).Text(text =>
                                         {
                                             ApplyLinkStyling(text, d.ValorDato ?? "");
-                                            // El FontSize se aplica DENTRO del bloque Text
-                                            // El estilo base se hereda del FontSize(10) configurado en page.DefaultTextStyle()
-                                            // Si necesitas tamaño específico aquí, usa: text.FontSize(12);
                                         });
-                                        // Quita el .FontSize(12) de aquí ↓
+
                                     });
                                 }
 
-                                // Padding para separar secciones (aplicado a un item vacío o al siguiente item)
                                 col.Item().PaddingBottom(paddingBottomSecciones).Element(x => { });
                             }
                         }
@@ -938,15 +812,12 @@ namespace CurriculumVitaeApp.Controllers
                                         e.RelativeColumn(ColRight).Text(text =>
                                         {
                                             ApplyLinkStyling(text, r.Enlace ?? "");
-                                            // El FontSize se aplica DENTRO del bloque Text
-                                            // El estilo base se hereda del FontSize(10) configurado en page.DefaultTextStyle()
-                                            // Si necesitas tamaño específico aquí, usa: text.FontSize(12);
+
                                         });
-                                        // Quita el .FontSize(12) de aquí ↓
+
                                     });
                                 }
 
-                                // Padding para separar secciones (aplicado a un item vacío o al siguiente item)
                                 col.Item().PaddingBottom(paddingBottomSecciones).Element(x => { });
                             }
                         }
@@ -1017,7 +888,7 @@ namespace CurriculumVitaeApp.Controllers
 
         }
 
-        // Método auxiliar para aplicar estilos a enlaces
+        // Método auxiliar para aplicar estilos a enlaces en DatosBasicos
         private void ApplyLinkStyling(TextDescriptor text, string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -1031,7 +902,7 @@ namespace CurriculumVitaeApp.Controllers
 
             if (matches.Count == 0)
             {
-                text.Span(input).FontSize(12); // Aplica tamaño aquí
+                text.Span(input).FontSize(12); 
                 return;
             }
 
@@ -1042,7 +913,7 @@ namespace CurriculumVitaeApp.Controllers
                 if (match.Index > lastIndex)
                 {
                     text.Span(input.Substring(lastIndex, match.Index - lastIndex))
-                        .FontSize(12); // Aplica tamaño aquí
+                        .FontSize(12); 
                 }
 
                 string url = match.Value;
@@ -1059,7 +930,7 @@ namespace CurriculumVitaeApp.Controllers
             if (lastIndex < input.Length)
             {
                 text.Span(input.Substring(lastIndex))
-                    .FontSize(12); // Aplica tamaño aquí
+                    .FontSize(12);
             }
         }
 
