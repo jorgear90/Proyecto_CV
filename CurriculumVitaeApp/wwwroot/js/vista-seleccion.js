@@ -1,9 +1,10 @@
-﻿function cargarVistaParcial(container, url) {
+﻿// Método que carga cada vista parcial dentro de la vista contenedora
+function cargarVistaParcial(container, url) {
 
-    // 🔥 Obtener el idCv del hidden
+    // Obtener el idCv del hidden
     let idCv = $('#idCvHidden').val();
 
-    // 🔥 Agregarlo a la URL
+    // Se agrega al url el id del cv para ocuparlo en cada vista parcial.
     let urlFinal = url + '?idCv=' + idCv;
 
     $.ajax({
@@ -12,6 +13,7 @@
         success: function (result) {
             container.hide().html(result);
 
+            // Se llama a metodo que oredena los item en cada vista parcial
             activarOrdenamiento(container);
 
             container.slideDown();
@@ -23,17 +25,19 @@
 }
 
 
-// 1. Variable global para recordar qué categorías ya trajimos por AJAX
+// Variable global para recordar qué categorías ya trajimos por AJAX
 let categoriasCargadas = [];
 
+// Inicialización segura 
 $(document).ready(function () {
 
+    // Define una función reutilizable que fuerza la apertura de una sección específica.
     function abrirOpcion(opcionElement) {
         const parent = opcionElement;
         const contentContainer = parent.find('.contenido-parcial');
         const url = parent.data('url');
         const toggleButton = parent.find('.btn-toggle');
-        const tipo = parent.data('tipo').toString(); // Obtenemos el tipo
+        const tipo = parent.data('tipo').toString();
 
         $('.contenido-parcial').not(contentContainer).slideUp();
         $('.btn-toggle').not(toggleButton).text('+');
@@ -47,11 +51,17 @@ $(document).ready(function () {
         toggleButton.text('–');
     }
 
+    // Manejador de eventos (Event Listener)
+    // Asigna el comportamiento al hacer clic en los botones desplegables (.btn-toggle).
+    // Implementa lógica inteligente (Lazy Loading):
+    // - Si la sección ya está visible, la cierra.
+    // - Si está oculta y ya tiene contenido descargado (children > 0), solo la muestra (slideDown).
+    // - Si está oculta y vacía, llama al servidor para descargar el contenido por primera vez.
     $('.btn-toggle').click(function () {
         const parent = $(this).closest('.opcion');
         const contentContainer = parent.find('.contenido-parcial');
         const url = parent.data('url');
-        const tipo = parent.data('tipo').toString(); // Obtenemos el tipo
+        const tipo = parent.data('tipo').toString();
         const toggleButton = $(this);
 
         $('.contenido-parcial').not(contentContainer).slideUp();
@@ -75,13 +85,15 @@ $(document).ready(function () {
         }
     });
 
+    // Apertura inicial de la vista parcial DatosBasicos
     abrirOpcion($('.opcion[data-url="/Curriculum/SelectorDatosBasicos"]'));
 });
 
+// Activa el ordenamiento si se quiere editar un cv
 function activarOrdenamiento(contenedor) {
-    const tbody = contenedor.find("tbody")[0]; // obtener DOM nativo
+    const tbody = contenedor.find("tbody")[0];
 
-    if (!tbody) return; // no hacer nada si no existe (evita errores)
+    if (!tbody) return; 
 
     new Sortable(tbody, {
         animation: 150,
@@ -95,7 +107,7 @@ function confirmarSeleccion(event) {
     event.preventDefault();
 
     var form = $('#formSeleccion');
-    var valor = $('.input-valor').val()?.trim();
+    var valor = $('.input-encabezado').val()?.trim();
     var nombreCv = $('.input-nombre-cv').val()?.trim();
     var profesion = $('.input-profesion').val()?.trim();
     var idCv = $('.input-id-cv').val()?.trim();
@@ -199,7 +211,7 @@ $(document).ready(function () {
     }
 });
 
-//Modales
+// Configura la apertura de los modales si es necesario ver una descripción
 $(document).on('hidden.bs.modal', function () {
     $('.modal-backdrop').remove();
     $('body').removeClass('modal-open');

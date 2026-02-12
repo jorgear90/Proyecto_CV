@@ -1,5 +1,6 @@
 ﻿//Este js es para la vista crear de Usuarios
 
+// Alerta que confirma la correcta creación de un usuario
 $(function () {
     if (window.usuarioCreado === true) {
         Swal.fire({

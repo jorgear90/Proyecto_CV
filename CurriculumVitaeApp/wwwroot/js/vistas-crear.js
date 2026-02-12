@@ -6,6 +6,7 @@
     //Habilidades
     //Links
 
+// Método que confirma la correcta creación de un registro
 function confirmarCreacion(event) {
     event.preventDefault();
 

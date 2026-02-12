@@ -1,4 +1,6 @@
-﻿$(document).ready(function () {
+﻿
+// Inicialización segura
+$(document).ready(function () {
     // Inicializar todas las tablas en la página
     initSelectionTables();
 
@@ -8,6 +10,7 @@
     });
 });
 
+// PUNTO DE ENTRADA PRINCIPAL
 function initSelectionTables() {
     // Encontrar todas las tablas con checkboxes
     $('table.table').each(function () {
@@ -18,6 +21,7 @@ function initSelectionTables() {
     updateGlobalCounter();
 }
 
+// CONFIGURACIÓN DE UNA TABLA ESPECÍFICA
 function initTableSelection($table) {
     // Encontrar elementos relativos a esta tabla específica
     const $selectAll = $table.find('.select-all');
@@ -53,6 +57,7 @@ function initTableSelection($table) {
     updateTableSelectionInfo($table);
 }
 
+// LÓGICA DEL CHECKBOX "PADRE"
 function updateSelectAllCheckbox($table) {
     const $selectAll = $table.find('.select-all');
     const $checkboxes = $table.find('.chk-item');
@@ -74,6 +79,7 @@ function updateSelectAllCheckbox($table) {
     }
 }
 
+// FEEDBACK VISUAL (CONTADORES Y COLORES)
 function updateTableSelectionInfo($table) {
     const $selectionCounter = $table.closest('.contenido-parcial').find('.selection-counter') ||
         $table.prev('.selection-counter') ||
