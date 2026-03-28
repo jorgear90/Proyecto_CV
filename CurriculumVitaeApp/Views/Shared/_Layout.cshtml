@@ -6,65 +6,43 @@
     <title>@ViewData["Title"] - CurriculumVitaeApp</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/CurriculumVitaeApp.styles.css" asp-append-version="true" />
+    <!--<link rel="stylesheet" href="~/CurriculumVitaeApp.styles.css" asp-append-version="true" />-->
 </head>
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/localization/messages_es.min.js"></script>
-}
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">CurriculumVitaeApp</a>
+        <nav class="navbar navbar-expand-sm navbar-light bg-white border-bottom box-shadow mb-4">
+            <div class="container">
+                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">CurriculumApp</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+
                     <ul class="navbar-nav flex-grow-1">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Completar mi CV
+                            </a>
+                            <ul class="dropdown-menu shadow-sm border-0" aria-labelledby="navbarDropdown">
+                                <li><a class="dropdown-item" asp-controller="DatosBasicos" asp-action="Index">Datos básicos</a></li>
+                                <li><a class="dropdown-item" asp-controller="ExperienciaLaboral" asp-action="Index">Experiencia laboral</a></li>
+                                <li><a class="dropdown-item" asp-controller="Habilidades" asp-action="Index">Habilidades blandas</a></li>
+                                <li><a class="dropdown-item" asp-controller="Conocimientos" asp-action="Index">Conocimientos</a></li>
+                                <li><a class="dropdown-item" asp-controller="FormacionAcademica" asp-action="Index">Formación Académica</a></li>
+                                <!--<li><hr class="dropdown-divider"></li>-->
+                                <li><a class="dropdown-item" asp-controller="Links" asp-action="Index">Enlaces</a></li>
+                            </ul>
+                        </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="DatosBasicos" asp-action="Index">Datos básicos</a>
+                            <a class="nav-link text-dark fw-semibold" asp-area="" asp-controller="Curriculum" asp-action="MisCurriculums">Mis CVs</a>
                         </li>
                     </ul>
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ExperienciaLaboral" asp-action="Index">Experiencia laboral</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Habilidades" asp-action="Index">Habilidades blandas</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Conocimientos" asp-action="Index">Conocimientos</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="FormacionAcademica" asp-action="Index">Formación Academica</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Links" asp-action="Index">Enlaces</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Curriculum" asp-action="MisCurriculums">Mis Cvs</a>
-                        </li>
-                    </ul>
+
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <form asp-controller="Home" asp-action="Logout" method="post" class="form-inline">
-                                <button type="submit" onclick="cerrarSesion(event)" class="btn btn-link nav-link text-dark">Cerrar Sesión</button>
+                                <button type="submit" onclick="cerrarSesion(event)" class="btn btn-outline-danger btn-sm mt-1">Cerrar Sesión</button>
                                 <input type="hidden" name="submitButton" id="submitButtonHidden" />
                             </form>
                         </li>
@@ -73,26 +51,32 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+
+    <div class="container flex-grow-1 d-flex flex-column">
+        <main role="main" class="pb-5 flex-grow-1">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2025 - CurriculumVitaeApp - <a asp-area="" asp-controller="Home" asp-action="Privacy"></a>
+    <footer class="border-top footer text-muted bg-white mt-auto py-3">
+        <div class="container text-center">
+            &copy; 2025 - CurriculumVitaeApp - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-decoration-none text-muted">Privacidad</a>
         </div>
     </footer>
+    
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/localization/messages_es.min.js"></script>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+
     <script>
         function cerrarSesion(event) {
             event.preventDefault();
-
             Swal.fire({
                 title: '¿Está seguro que desea cerrar sesión?',
                 icon: 'warning',
@@ -106,9 +90,11 @@
                     document.getElementById('submitButtonHidden').value = 'cerrar';
                     event.target.closest('form').submit();
                 }
-
             });
         }
     </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
 </body>
 </html>

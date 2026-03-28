@@ -1,33 +1,48 @@
 ﻿@model List<string>
 
 @{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
 }
+
+<div class="text-center mb-5 mt-4">
+    <h1 class="display-4 fw-bold text-dark" style="letter-spacing: -1px;">
+        Crea tu <span class="text-primary">Curriculum</span>
+    </h1>
+    <p class="lead text-secondary mt-2">Elige una de nuestras plantillas profesionales para destacar tu perfil.</p>
+</div>
 
 @if (Model == null || !Model.Any())
 {
-    <div class="text-center">
-        <h1 class="display-4">Bienvenido</h1>
+    <div class="alert alert-warning text-center shadow-sm p-4 rounded-4" role="alert">
+        <h4 class="alert-heading fw-bold">¡Ups!</h4>
+        <p class="mb-0">Actualmente no hay plantillas disponibles para seleccionar en la carpeta.</p>
     </div>
 }
 else
 {
-    <div class="row">
+    <div class="row g-4 justify-content-center pb-5">
         @for (int i = 0; i < Model.Count; i++)
         {
-            <div class="col-3 text-center m-2">
-
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                 <a asp-controller="Curriculum"
                    asp-action="VistaSeleccionar"
-                   asp-route-id="@i">
+                   asp-route-id="@i"
+                   class="text-decoration-none">
 
-                    <img src="~/cv/@Model[i]"
-                         class="img-fluid"
-                         style="cursor:pointer; border:1px solid #ccc; padding:5px;" />
+                    <div class="cv-card h-100">
+                        <div class="cv-image-container">
+                            <img src="~/cv/@Model[i]"
+                                 class="img-fluid"
+                                 alt="Diseño de currículum @(i+1)" />
+                        </div>
+
+                        <div class="cv-info">
+                            <h5 class="cv-title">Plantilla @(i + 1)</h5>
+                            <span class="cv-filename">@Model[i]</span>
+                        </div>
+                    </div>
 
                 </a>
-
-                <p>@Model[i]</p>
             </div>
         }
     </div>
