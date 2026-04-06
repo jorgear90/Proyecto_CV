@@ -1,12 +1,66 @@
 ﻿
 // Inicialización segura
 $(document).ready(function () {
-    // Inicializar todas las tablas en la página
-    initSelectionTables();
 
-    // También inicializar cuando se cargue contenido dinámico (si usas AJAX)
-    $(document).on('contentLoaded', function () {
-        initSelectionTables();
+    // Función principal para actualizar los contadores
+    function updateCounter(container) {
+        // Encontramos cuántos checkboxes individuales están marcados en esta tabla
+        const selectedCount = container.find('.chk-item:checked').length;
+        // Actualizamos el número visual en el contador
+        container.find('.selected-count').text(selectedCount);
+
+        // Lógica para el checkbox "Seleccionar Todos"
+        const totalCheckboxes = container.find('.chk-item').length;
+        const selectAllCheckbox = container.find('.select-all');
+
+        // Si hay items y todos están marcados, marcamos el de "Todos"
+        if (totalCheckboxes > 0 && selectedCount === totalCheckboxes) {
+            selectAllCheckbox.prop('checked', true);
+        } else {
+            selectAllCheckbox.prop('checked', false);
+        }
+    }
+
+    // 1. Delegación de eventos para el checkbox "Seleccionar Todos"
+    $(document).on('change', '.select-all', function () {
+        // Buscamos el contenedor principal de esta opción específica
+        const container = $(this).closest('.opcion');
+        const isChecked = $(this).prop('checked');
+
+        // Marcamos o desmarcamos todos los checkboxes individuales
+        container.find('.chk-item').prop('checked', isChecked);
+
+        // Actualizamos el contador
+        updateCounter(container);
+    });
+
+    // 2. Delegación de eventos para cada checkbox individual
+    $(document).on('change', '.chk-item', function () {
+        const container = $(this).closest('.opcion');
+        updateCounter(container);
+    });
+
+    // 3. Pequeño detalle de UX: Poder hacer clic en toda la fila para seleccionar
+    $(document).on('click', '.item-row td:not(:last-child)', function (e) {
+        // Evitamos que esto pase si hacen clic directamente en el checkbox
+        if ($(e.target).is('input')) return;
+
+        const row = $(this).closest('tr');
+        const checkbox = row.find('.chk-item');
+
+        // Invertimos el estado del checkbox
+        checkbox.prop('checked', !checkbox.prop('checked'));
+
+        // Actualizamos el contador
+        const container = $(this).closest('.opcion');
+        updateCounter(container);
+    });
+
+    // 4. Inicializar contadores si la vista carga con checkboxes ya marcados
+    // (Por ejemplo, al editar un CV existente)
+    // Escuchamos un evento personalizado para saber cuándo AJAX terminó de inyectar el HTML
+    $(document).on('vistaParcialCargada', function (e, opcionContainer) {
+        updateCounter($(opcionContainer));
     });
 });
 
