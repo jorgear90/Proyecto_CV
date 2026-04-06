@@ -2,52 +2,39 @@
 @inject CurriculumVitaeApp.Helpers.IdProtector IdProtector
 
 @{
-    ViewData["Title"] = "SelectorHabilidad";
-    Layout = "_LayoutPublic";
-
+    Layout = null;
     var idsSeleccionados = ViewBag.IdsSeleccionados as HashSet<int> ?? new HashSet<int>();
 }
 
-<h1>Habilidades blandas</h1>
-
-<!-- Contador de seleccionados -->
-<div id="selection-counter" class="selection-counter badge bg-info" style="margin-bottom: 10px;">
-    Seleccionados: <span class="selected-count">0</span> / <span class="total-count">@Model.Count()
+<div class="d-flex justify-content-end mb-3">
+    <div class="selection-counter badge">
+        Seleccionados: <span class="selected-count">0</span> / <span class="total-count">@Model.Count()</span>
+    </div>
 </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th>
-                <input type="checkbox" class="select-all" title="Seleccionar todos" />
-                <label for="select-all" style="cursor: pointer; margin-left: 5px;">Seleccionar todos
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr class="item-row" data-id='@IdProtector.EncryptId(item.Id)' data-tipo="2">
-            <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
-            </td>
-            <td>
-                <input type="checkbox" name="seleccionados" class="chk-item" @(idsSeleccionados.Contains(item.Id) ? "checked" : "") />
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-    <!-- Agrega jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="~/js/vistas-parciales-curriculum.js"></script>
-}
-
-<link rel="stylesheet" href="~/css/vistas-parciales-curriculum.css" />
+<div class="table-responsive">
+    <table class="table custom-table align-middle">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.Descripcion)</th>
+                <th class="text-end" style="width: 160px;">
+                    <div class="form-check d-flex justify-content-end align-items-center mb-0">
+                        <label class="form-check-label me-2 fw-bold" for="selectAllHab" style="cursor: pointer;">Todos</label>
+                        <input type="checkbox" class="form-check-input select-all" id="selectAllHab" title="Seleccionar todos" />
+                    </div>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr class="item-row" data-id='@IdProtector.EncryptId(item.Id)' data-tipo="2">
+                    <td>@Html.DisplayFor(modelItem => item.Descripcion)</td>
+                    <td class="text-end">
+                        <input type="checkbox" name="seleccionados" class="form-check-input chk-item" @(idsSeleccionados.Contains(item.Id) ? "checked" : "") />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

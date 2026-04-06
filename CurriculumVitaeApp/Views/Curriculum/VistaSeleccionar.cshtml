@@ -1,68 +1,104 @@
-﻿@model CurriculumVitaeApp.Models.Curriculum
+﻿
+@model CurriculumVitaeApp.Models.Curriculum
 
 @{
-    ViewData["Title"] = "Seleccionar";
+    ViewData["Title"] = "Seleccionar items para el CV";
 }
 
-<h1>Seleccionar items</h1>
+<link rel="stylesheet" href="~/css/vistas-parciales-curriculum.css" />
 
-<input type="hidden" class="input-id-cv" id="idCvHidden" value="@ViewBag.IdCv" />
-<input type="hidden" id="seleccionesPreviasHidden" value='@Html.Raw(ViewBag.SeleccionesPreviasJson ?? "[]")' />
+<div class="container-fluid px-0 mt-3">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold text-dark">Configura tu Currículum</h2>
+        <p class="text-muted">Personaliza la cabecera de tu CV y selecciona qué información deseas incluir.</p>
+    </div>
 
-<div class="form-group">
-    <label class="control-label">Crear encabezado</label>
-    <input type="text" name="encabezado" class="form-control input-encabezado" value="@ViewBag.Encabezado" required />
-    <label class="control-label">Crear nombre de cv</label>
-    <input type="text" name="nombreCv" class="form-control input-nombre-cv" value="@ViewBag.NombreCv" required />
-    <label class="control-label">Indique una profesión (opcional)</label>
-    <input type="text" name="profesion" class="form-control input-profesion" value="@ViewBag.Profesion" required />
+    <input type="hidden" class="input-id-cv" id="idCvHidden" value="@ViewBag.IdCv" />
+    <input type="hidden" id="seleccionesPreviasHidden" value='@Html.Raw(ViewBag.SeleccionesPreviasJson ?? "[]")' />
+
+    <div class="card-configuration mb-5">
+        <h5 class="seccion-titulo mb-3">Información General</h5>
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label fw-semibol text-secondary">Nombre del archivo PDF</label>
+                <input type="text" name="nombreCv" class="form-control input-nombre-cv" value="@ViewBag.NombreCv" placeholder="Ej: Mi_CV_2026" required />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-secondary">Título / Encabezado</label>
+                <input type="text" name="encabezado" class="form-control input-encabezado" value="@ViewBag.Encabezado" placeholder="Ej: Perfil Profesional" required />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label fw-semibold text-secondary">Profesión (opcional)</label>
+                <input type="text" name="profesion" class="form-control input-profesion" value="@ViewBag.Profesion" placeholder="Ej: Ing. Civil en Informática" />
+            </div>
+        </div>
+    </div>
+
+    <h5 class="seccion-titulo mb-3">Selecciona el contenido a incluir</h5>
+    <div class="opciones-container">
+
+        <div class="opcion" data-url="/Curriculum/SelectorDatosBasicos" data-tipo="1">
+            <div class="opcion-header">
+                <button class="btn-toggle">+</button>
+                <span class="titulo">Datos Básicos</span>
+            </div>
+            <div class="contenido-parcial"></div>
+        </div>
+
+        <div class="opcion" data-url="/Curriculum/SelectorExperienciaLaboral" data-tipo="4">
+            <div class="opcion-header">
+                <button class="btn-toggle">+</button>
+                <span class="titulo">Experiencia Laboral</span>
+            </div>
+            <div class="contenido-parcial"></div>
+        </div>
+
+        <div class="opcion" data-url="/Curriculum/SelectorFormacionAcademica" data-tipo="5">
+            <div class="opcion-header">
+                <button class="btn-toggle">+</button>
+                <span class="titulo">Formación académica</span>
+            </div>
+            <div class="contenido-parcial"></div>
+        </div>
+
+        <div class="opcion" data-url="/Curriculum/SelectorHabilidad" data-tipo="2">
+            <div class="opcion-header">
+                <button class="btn-toggle">+</button>
+                <span class="titulo">Habilidades blandas</span>
+            </div>
+            <div class="contenido-parcial"></div>
+        </div>
+
+        <div class="opcion" data-url="/Curriculum/SelectorConocimiento" data-tipo="3">
+            <div class="opcion-header">
+                <button class="btn-toggle">+</button>
+                <span class="titulo">Conocimientos técnicos</span>
+            </div>
+            <div class="contenido-parcial"></div>
+        </div>
+
+        <div class="opcion" data-url="/Curriculum/SelectorEnlaces" data-tipo="6">
+            <div class="opcion-header">
+                <button class="btn-toggle">+</button>
+                <span class="titulo">Enlaces</span>
+            </div>
+            <div class="contenido-parcial"></div>
+        </div>
+
+    </div>
+
+    <form id="formSeleccion" asp-action="GenerarPDF" method="post">
+        <input type="hidden" name="seleccionadosJson" id="seleccionadosJson" />
+        <input type="hidden" name="Encabezado" class="hidden-encabezado" />
+        <input type="hidden" name="NombreCv" class="hidden-nombre-cv" />
+        <input type="hidden" name="Profesion" class="hidden-profesion" />
+        <input type="hidden" name="idCv" class="hidden-id-cv" />
+
+        <button type="submit" onclick="confirmarSeleccion(event)" class="btn btn-primary btn-lg px-5 py-3 fw-bold shadow-sm btn-generar-pdf">
+            <i class="bi bi-file-earmark-pdf-fill me-2"></i> Generar PDF
+        </button>
+    </form>
 </div>
-
-<div class="opciones-container">
-    <div class="opcion" data-url="/Curriculum/SelectorDatosBasicos" data-tipo="1">
-        <button class="btn-toggle">+</button>
-        <span class="titulo">Datos Básicos</span>
-        <div class="contenido-parcial"></div>
-    </div>
-
-    <div class="opcion" data-url="/Curriculum/SelectorExperienciaLaboral" data-tipo="4">
-        <button class="btn-toggle">+</button>
-        <span class="titulo">Experiencia Laboral</span>
-        <div class="contenido-parcial"></div>
-    </div>
-
-    <div class="opcion" data-url="/Curriculum/SelectorFormacionAcademica" data-tipo="5">
-        <button class="btn-toggle">+</button>
-        <span class="titulo">Formación académica</span>
-        <div class="contenido-parcial"></div>
-    </div>
-
-    <div class="opcion" data-url="/Curriculum/SelectorHabilidad" data-tipo="2">
-        <button class="btn-toggle">+</button>
-        <span class="titulo">Habilidades blandas</span>
-        <div class="contenido-parcial"></div>
-    </div>
-    <div class="opcion" data-url="/Curriculum/SelectorConocimiento" data-tipo="3">
-        <button class="btn-toggle">+</button>
-        <span class="titulo">Conocimientos técnicos</span>
-        <div class="contenido-parcial"></div>
-    </div>
-    <div class="opcion" data-url="/Curriculum/SelectorEnlaces" data-tipo="6">
-        <button class="btn-toggle">+</button>
-        <span class="titulo">Enlaces</span>
-        <div class="contenido-parcial"></div>
-    </div>
-</div>
-
-<form id="formSeleccion" asp-action="GenerarPDF" method="post">
-    <input type="hidden" name="seleccionadosJson" id="seleccionadosJson" />
-    <input type="hidden" name="Encabezado" class="hidden-encabezado" />
-    <input type="hidden" name="NombreCv" class="hidden-nombre-cv" />
-    <input type="hidden" name="Profesion" class="hidden-profesion" />
-    <input type="hidden" name="idCv" class="hidden-id-cv" />
-
-    <button type="submit" onclick="confirmarSeleccion(event)" class="btn btn-success">Generar PDF</button>
-</form>
 
 @section Scripts {
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -78,7 +114,7 @@
     </script>
 
     <script src="~/js/vista-seleccion.js"></script>
+    <script src="~/js/vistas-parciales-curriculum.js"></script>
         
 }
-
 
