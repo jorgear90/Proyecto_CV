@@ -1,59 +1,74 @@
 ﻿@model CurriculumVitaeApp.Models.Usuario
 
 @{
-    Layout = "_LayoutPublic";
-    ViewData["Title"] = "CrearUsuario";
+    Layout = null;
+    ViewData["Title"] = "Crear Cuenta";
 }
 
-<h1>Crear usuario</h1>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CurriculumApp</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+</head>
+<body class="auth-bg">
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
+    <div class="auth-card">
+        <h2 class="auth-title">Crear Cuenta</h2>
+
         <form asp-action="Crear">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Correo" class="control-label"></label>
-                <input asp-for="Correo" type="email" class="form-control" />
-                <span asp-validation-for="Correo" class="text-danger"></span>
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Correo" class="control-label fw-semibold text-secondary mb-1"></label>
+                <input asp-for="Correo" type="email" class="form-control" placeholder="tu@correo.com" />
+                <span asp-validation-for="Correo" class="text-danger small"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Password" class="control-label"></label>
-                <input asp-for="Password" id="password" type="password" class="form-control" />
-                <span asp-validation-for="Password" class="text-danger"></span>
+
+            <div class="form-group mb-3">
+                <label asp-for="Password" class="control-label fw-semibold text-secondary mb-1"></label>
+                <input asp-for="Password" id="password" type="password" class="form-control" placeholder="••••••••" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
             </div>
-            <div class="form-group">
-                <label for="PasswordRepetido" class="control-label">Repita el password</label>
-                <input name="PasswordRepetido" id="repetir" for="PasswordRepetido" type="password" class="form-control" />
-                <span for="PasswordRepetido" class="text-danger"></span>
+
+            <div class="form-group mb-4">
+                <label for="PasswordRepetido" class="control-label fw-semibold text-secondary mb-1">Repita el password</label>
+                <input name="PasswordRepetido" id="repetir" type="password" class="form-control" placeholder="••••••••" />
+                <span for="PasswordRepetido" class="text-danger small"></span>
             </div>
+
             @if (ViewBag.Mensaje != null)
             {
-                <p class="text-danger">@ViewBag.Mensaje</p>
+                <div class="alert alert-danger py-2 text-center small">@ViewBag.Mensaje</div>
             }
-            <div class="form-group">
-                <input type="submit" onclick="confirmarCreacion(event)" value="Crear" class="btn btn-success btn-sm" />
+
+            <div class="d-grid gap-2 mb-4">
                 <input type="hidden" name="submitButton" id="submitButtonHidden" />
+                <button type="submit" onclick="confirmarCreacion(event)" class="btn btn-success">Crear Usuario</button>
+            </div>
+
+            <div class="text-center mt-3">
+                <span class="text-muted">¿Ya tienes cuenta?</span>
+                <a asp-action="Login" class="text-decoration-none fw-bold">Vuelve al Login</a>
             </div>
         </form>
     </div>
-</div>
 
-<div>
-    <a asp-action="Login">Volver a Login</a>
-</div>
-
-
-
-
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <!-- Traducción al español -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/localization/messages_es.min.js"></script>
 
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
     <script src="~/js/vista-crear-usuario.js"></script>
+
     @if (TempData["Creado"] != null)
     {
         <script>
@@ -61,8 +76,5 @@
             window.loginUrl = '@Url.Action("Login", "Usuarios")';
         </script>
     }
-   
-}
-
-
-
+</body>
+</html>
