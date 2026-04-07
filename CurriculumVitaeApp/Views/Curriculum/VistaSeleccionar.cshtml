@@ -5,7 +5,7 @@
     ViewData["Title"] = "Seleccionar items para el CV";
 }
 
-<link rel="stylesheet" href="~/css/vistas-parciales-curriculum.css" />
+<link rel="stylesheet" href="~/css/vistas-parciales-curriculum.css"  />
 
 <div class="container-fluid px-0 mt-3">
     <div class="text-center mb-4">
@@ -87,7 +87,7 @@
 
     </div>
 
-    <form id="formSeleccion" asp-action="GenerarPDF" method="post">
+    <form id="formSeleccion" asp-action="GenerarPDF" method="post" class="mt-4 mb-0">
         <input type="hidden" name="seleccionadosJson" id="seleccionadosJson" />
         <input type="hidden" name="Encabezado" class="hidden-encabezado" />
         <input type="hidden" name="NombreCv" class="hidden-nombre-cv" />
