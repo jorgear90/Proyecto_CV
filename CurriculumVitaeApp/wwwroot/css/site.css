@@ -175,3 +175,23 @@
     transform: translateY(-3px);
     box-shadow: 0 10px 20px rgba(13, 110, 253, 0.3) !important;
 }
+
+/* --- BOTONES DE ACCIÓN EN TABLAS --- */
+.btn-accion {
+    border-radius: 8px; /* Cuadraditos con bordes suaves */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    transition: all 0.2s ease;
+}
+
+.btn-accion:hover {
+    transform: translateY(-2px); /* Se levantan un poquito */
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.btn-accion i {
+    font-size: 1.1rem; /* Tamaño perfecto para el icono */
+}
