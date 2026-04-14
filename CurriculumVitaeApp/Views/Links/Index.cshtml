@@ -5,57 +5,79 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Enlaces</h2>
+            <p class="text-muted mb-0">Gestiona tus enlaces.</p>
+        </div>
+        <a asp-action="Crear" class="btn btn-primary fw-bold shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo enlace
+        </a>
+    </div>
+    <div class="gestion-container">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Titulo)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Enlace)
+                        </th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <input type="text" name="Titulo" class="form-control input-titulo" value="@item.Titulo" data-original="@item.Titulo" required />
+                                <span for="Titulo" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <input type="text" name="Enlace" class="form-control input-enlace" value="@item.Enlace" data-original="@item.Enlace" required />
+                                <span for="Enlace" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <div class="acciones-inline">
+                                    <form asp-action="Editar"
+                                          method="post"
+                                          class="form-editar-enlace"
+                                          data-form="editar-enlace">
+                                        <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
+                                        <input type="hidden" name="Titulo" class="hidden-titulo" />
+                                        <input type="hidden" name="Enlace" class="hidden-enlace" />
+                                        <button type="submit" class="btn btn-outline-success btn-accion-sm">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
 
-<p>
-    <a asp-action="Crear">Crear nuevo enlace</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Titulo)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Enlace)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <input type="text" name="Titulo" class="form-control input-titulo" value="@item.Titulo" data-original="@item.Titulo" required />
-                <span for="Titulo" class="text-danger"></span>
-            </td>
-            <td>
-                <input type="text" name="Enlace" class="form-control input-enlace" value="@item.Enlace" data-original="@item.Enlace" required />
-                <span for="Enlace" class="text-danger"></span>
-            </td>
-            <td>
-                <form asp-action="Editar"
-                  method="post"
-                  class="form-editar-enlace"
-                  data-form="editar-enlace">
-                    <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
-                    <input type="hidden" name="Titulo" class="hidden-titulo" />
-                    <input type="hidden" name="Enlace" class="hidden-enlace" />
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                </form>
-                <button type="button" class="btn btn-secondary btn-cancelar-enlace">Cancelar</button>
-                <form asp-action="Eliminar" id="formEliminarEnlace" method="post" class="delete-form">
-                    <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
-                    <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
-                </form>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                                    <button type="button" class="btn btn-outline-secondary btn-accion-sm btn-cancelar-enlace" title="Deshacer cambios">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
 
-<div>
-    <a asp-controller="Home" asp-action="Index">Volver</a>
+                                    <form asp-action="Eliminar" id="formEliminarHabilidad" method="post" class="delete-form">
+                                        <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
+                                        <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-outline-danger btn-accion-sm" title="Eliminar registro">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-light border shadow-sm text-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver al inicio
+        </a>
+    </div>
 </div>
 
 @section Scripts {
