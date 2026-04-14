@@ -15,54 +15,76 @@
     }
 </style>
 
-<p>
-    <a asp-action="Crear">Crea un dato básico</a>
-</p>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Datos básicos</h2>
+            <p class="text-muted mb-0">Gestiona tu datos básicos.</p>
+        </div>
+        <a asp-action="Crear" class="btn btn-primary fw-bold shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo dato básico
+        </a>
+    </div>
+    <div class="gestion-container">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.NombreDato)
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.ValorDato)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <input type="text" name="NombreDato" class="input-celda input-nombre" value="@item.NombreDato" data-original="@item.NombreDato" required />
+                                <span for="NombreDato" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <input type="text" name="Valor" class="input-celda input-valor" value="@item.ValorDato" data-original="@item.ValorDato" required />
+                                <span for="ValorDato" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <div class="acciones-inline">
+                                    <form asp-action="Editar" id="formEditarDato" method="post" class="edit-form">
+                                        <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
+                                        <input type="hidden" name="NombreDato" class="hidden-nombre" />
+                                        <input type="hidden" name="ValorDato" class="hidden-valor" />
+                                        <button type="submit" class="btn btn-outline-success btn-accion-sm" title="Guardar cambios">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
 
-<h3>Datos básicos</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.NombreDato)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ValorDato)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <input type="text" name="NombreDato" class="form-control input-nombre" value="@item.NombreDato" data-original="@item.NombreDato" required />
-                <span for="NombreDato" class="text-danger"></span>
-            </td>
-            <td>
-                <input type="text" name="Valor" class="form-control input-valor" value="@item.ValorDato" data-original="@item.ValorDato" required />
-                <span for="ValorDato" class="text-danger"></span>
-            </td>
-            <td>
-                <form asp-action="Editar" id="formEditarDato" method="post" class="edit-form">
-                    <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
-                    <input type="hidden" name="NombreDato" class="hidden-nombre" />
-                    <input type="hidden" name="ValorDato" class="hidden-valor" />
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                </form>
-                <button type="button" class="btn btn-secondary btn-cancelar-datos-basicos">Cancelar</button>
-                <form asp-action="Eliminar" id="formEliminarDato" method="post" class="delete-form">
-                    <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
-                    <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
-                </form>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+                                    <button type="button" class="btn btn-outline-secondary btn-accion-sm btn-cancelar-datos-basicos" title="Deshacer cambios">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
 
-<div>
-    <a asp-controller="Home" asp-action="Index">Volver</a>
+                                    <form asp-action="Eliminar" id="formEliminarDato" method="post" class="delete-form">
+                                        <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
+                                        <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-outline-danger btn-accion-sm" title="Eliminar registro">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-light border shadow-sm text-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver al inicio
+        </a>
+    </div>
 </div>
 
 @section Scripts {

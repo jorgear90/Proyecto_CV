@@ -2,116 +2,124 @@
 @inject CurriculumVitaeApp.Helpers.IdProtector IdProtector
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Experiencia Laboral";
 }
 
 <div class="modal fade" id="modalDescripcion" tabindex="-1" aria-labelledby="modalDescripcionLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
             <div class="popup modal-header text-white">
-                <h5 class="modal-title titulo-popup" id="modalDescripcionLabel">Descripción</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <h5 class="modal-title titulo-popup fw-bold" id="modalDescripcionLabel">Descripción de Cargo</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <form id="formEditarDescripcionEL" method="post" asp-action="Editar">
                     <input type="hidden" name="idEditar" id="modal-id-editar-ex" />
-                    <div class="form-group">
-                        <label>Descripción</label>
-                        <textarea name="Descripcion" id="modal-descripcion" class="form-control" rows="5" required></textarea>
+                    <div class="form-group mb-4">
+                        <label class="fw-semibold text-secondary mb-2">Detalle sus funciones y logros:</label>
+                        <textarea name="Descripcion" id="modal-descripcion" class="form-control" rows="6" required></textarea>
                     </div>
-                    <button type="button" class="btn btn-secondary btn-cancelar-modal-el">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-light btn-cancelar-modal-el" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary px-4">Guardar Cambios</button>
+                    </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-cerrar" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
 </div>
 
-<p>
-    <a asp-action="Crear">Crea un antecedente laboral</a>
-</p>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Experiencia Laboral</h2>
+            <p class="text-muted mb-0">Gestiona tu historial de trabajo.</p>
+        </div>
+        <a asp-action="Crear" class="btn btn-primary fw-bold shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Nuevo Antecedente
+        </a>
+    </div>
 
-<h3>Experiencia laboral</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaInicio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaTermino)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Vigente)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Empresa)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <input type="date" name="FechaInicio" class="form-control input-fecha-inicio" value="@(item.FechaInicio.ToString("yyyy-MM-dd"))" data-original="@(item.FechaInicio.ToString("yyyy-MM-dd"))" required  />
-                <span for="FechaInicio" class="text-danger"></span>
-            </td>
-            <td>
-                <input type="date" name="FechaTermino" class="form-control input-fecha-termino" value="@(item.FechaTermino?.ToString("yyyy-MM-dd"))" data-original="@(item.FechaTermino?.ToString("yyyy-MM-dd"))" required />
-                <span for="FechaTermino" class="text-danger"></span>
-            </td>
-            <td class="td-vigente" data-id="@IdProtector.EncryptId(item.Id)">
-                @Html.DisplayFor(modelItem => item.Vigente)
-            </td>
-            <td>
-                <input type="text" name="Empresa" class="form-control input-empresa" value="@item.Empresa" data-original="@item.Empresa" required />
-                <span for="Empresa" class="text-danger"></span>
-            </td>
-            <td>
-                <span class="descripcion-clickable-el text-primary"
-                        data-descripcion="@item.Descripcion"
-                        data-id="@IdProtector.EncryptId(item.Id)"
-                        style="cursor:pointer; text-decoration: underline;">
-                    Ver descripción
-                </span>
-            </td>
-            <td>
-                    <form asp-action="Editar" method="post" class="edit-form-experiencia-laboral">
-                    <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
-                        <input type="hidden" name="FechaInicio" class="hidden-fecha-inicio" />
-                        <input type="hidden" name="FechaTermino" class="hidden-fecha-termino" />
-                        <input type="hidden" name="Empresa" class="hidden-empresa" />
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                </form>
-                <button type="button" class="btn btn-secondary btn-cancelar-el">Cancelar</button>
-                <form asp-action="Eliminar" id="formEliminarExperiencia" method="post" class="delete-form">
-                    <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
-                    <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
-                </form>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <div class="gestion-container">
+        <div class="table-responsive">
+            <table class="table custom-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Inicio</th>
+                        <th>Término</th>
+                        <th>Vigente</th>
+                        <th>Empresa</th>
+                        <th>Descripción</th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td style="width: 150px;">
+                                <input type="date" name="FechaInicio" class="input-celda input-fecha-inicio text-muted" value="@(item.FechaInicio.ToString("yyyy-MM-dd"))" data-original="@(item.FechaInicio.ToString("yyyy-MM-dd"))" required />
+                            </td>
+                            <td style="width: 150px;">
+                                <input type="date" name="FechaTermino" class="input-celda input-fecha-termino text-muted" value="@(item.FechaTermino?.ToString("yyyy-MM-dd"))" data-original="@(item.FechaTermino?.ToString("yyyy-MM-dd"))" required />
+                            </td>
+                            <td class="td-vigente text-center" data-id="@IdProtector.EncryptId(item.Id)">
+                                @Html.DisplayFor(modelItem => item.Vigente)
+                            </td>
+                            <td>
+                                <input type="text" name="Empresa" class="input-celda input-empresa fw-semibold text-dark" value="@item.Empresa" data-original="@item.Empresa" required />
+                            </td>
+                            <td>
+                                <span class="descripcion-clickable-el text-primary fw-semibold"
+                                      data-descripcion="@item.Descripcion"
+                                      data-id="@IdProtector.EncryptId(item.Id)"
+                                      style="cursor:pointer; text-decoration: none;">
+                                    <i class="bi bi-file-text me-1"></i> Ver texto
+                                </span>
+                            </td>
+                            <td>
+                                <div class="acciones-inline">
 
-<div>
-    <a asp-controller="Home" asp-action="Index">Volver</a>
+                                    <form asp-action="Editar" method="post" class="edit-form-experiencia-laboral m-0">
+                                        <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
+                                        <input type="hidden" name="FechaInicio" class="hidden-fecha-inicio" />
+                                        <input type="hidden" name="FechaTermino" class="hidden-fecha-termino" />
+                                        <input type="hidden" name="Empresa" class="hidden-empresa" />
+                                        <button type="submit" class="btn btn-outline-success btn-accion-sm" title="Guardar cambios">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
+
+                                    <button type="button" class="btn btn-outline-secondary btn-accion-sm btn-cancelar-el" title="Deshacer cambios">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
+
+                                    <form asp-action="Eliminar" id="formEliminarExperiencia" method="post" class="delete-form m-0">
+                                        <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
+                                        <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-outline-danger btn-accion-sm" title="Eliminar registro">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-light border shadow-sm text-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver al inicio
+        </a>
+    </div>
 </div>
 
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/vistas-index.js"></script>
-
 }
-

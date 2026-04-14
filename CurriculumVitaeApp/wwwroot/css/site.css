@@ -195,3 +195,70 @@
 .btn-accion i {
     font-size: 1.1rem; /* Tamaño perfecto para el icono */
 }
+
+/* --- ESTILOS PARA LAS TABLAS DE GESTIÓN (INDEX) --- */
+.gestion-container {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e9ecef;
+}
+
+/* Inputs "Invisibles" dentro de la tabla */
+.input-celda {
+    border: 1px solid transparent;
+    background-color: transparent;
+    padding: 6px 10px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+.input-celda:hover {
+    background-color: #f8f9fa;
+    border-color: #e9ecef;
+}
+
+.input-celda:focus {
+    background-color: #ffffff;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15);
+    outline: none;
+}
+
+/* Acciones en línea (Botones pequeños) */
+.acciones-inline {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.btn-accion-sm {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.btn-accion-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Estilos para el Modal de Descripción */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.modal-header.popup {
+    background-color: #2b3440;
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}

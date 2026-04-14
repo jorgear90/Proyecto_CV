@@ -13,49 +13,71 @@
     }
 </style>
 
-<p>
-    <a asp-action="Crear">Crea habilidad</a>
-</p>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-0">Habilidad</h2>
+            <p class="text-muted mb-0">Gestiona tus habilidades.</p>
+        </div>
+        <a asp-action="Crear" class="btn btn-primary fw-bold shadow-sm">
+            <i class="bi bi-plus-lg me-1"></i> Nueva habilidad
+        </a>
+    </div>
+    <div class="gestion-container">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Descripcion)
+                        </th>
+                        <th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>
+                                <input type="text" name="Descripcion" class="form-control input-descripcion" value="@item.Descripcion" data-original="@item.Descripcion" required />
+                                <span for="Descripcion" class="text-danger"></span>
+                            </td>
+                            <td>
+                                <div class="acciones-inline">
+                                    <form asp-action="Editar" id="formEditarHabilidad" method="post" class="edit-form">
+                                        <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
+                                        <input type="hidden" name="Descripcion" class="hidden-descripcion" />
+                                        <button type="submit" class="btn btn-outline-success btn-accion-sm" title="Guardar cambios">
+                                            <i class="bi bi-check-lg"></i>
+                                        </button>
+                                    </form>
 
+                                    <button type="button" class="btn btn-outline-secondary btn-accion-sm btn-cancelar-habilidad" title="Deshacer cambios">
+                                        <i class="bi bi-arrow-counterclockwise"></i>
+                                    </button>
 
-<h3>Habilidades blandas</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                <input type="text" name="Descripcion" class="form-control input-descripcion" value="@item.Descripcion" data-original="@item.Descripcion" required />
-                <span for="Descripcion" class="text-danger"></span>
-            </td>
-            <td>
-                <form asp-action="Editar" id="formEditarHabilidad" method="post" class="edit-form">
-                    <input type="hidden" name="idEditar" value="@IdProtector.EncryptId(item.Id)" />
-                    <input type="hidden" name="Descripcion" class="hidden-descripcion" />
-                    <button type="submit" class="btn btn-primary">Guardar</button>
-                </form>
-                <button type="button" class="btn btn-secondary btn-cancelar-habilidad">Cancelar</button>
-                <form asp-action="Eliminar" id="formEliminarHabilidad" method="post" class="delete-form">
-                    <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
-                    <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-danger">Eliminar</button>
-                </form>
-            </td>
-            
-        </tr>
-}
-    </tbody>
-</table>
+                                    <form asp-action="Eliminar" id="formEliminarHabilidad" method="post" class="delete-form">
+                                        <input type="hidden" name="id" value="@IdProtector.EncryptId(item.Id)" />
+                                        <button type="submit" onclick="confirmarEliminacion(event)" class="btn btn-outline-danger btn-accion-sm" title="Eliminar registro">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
 
-<div>
-    <a asp-controller="Home" asp-action="Index">Volver</a>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="mt-4">
+        <a asp-controller="Home" asp-action="Index" class="btn btn-light border shadow-sm text-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Volver al inicio
+        </a>
+    </div>
 </div>
+
 
 @section Scripts {
     @{
