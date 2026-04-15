@@ -1,60 +1,78 @@
 ﻿@model CurriculumVitaeApp.Models.FormacionAcademica
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Crear antecedente académico";
 }
 
-<h1>Crear antecedente académico</h1>
+<div class="container mt-4 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-8 col-lg-6">
 
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Crear" id="formCrear">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="TipoInstitucionID" class="control-label"></label>
-                <select asp-for="TipoInstitucionID" class ="form-control" asp-items="ViewBag.TipoInstitucionID"></select>
+            <div class="form-crear-container">
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-3 border-bottom">
+                    <h3 class="fw-bold text-dark mb-0">Nueva formación</h3>
+                    <a asp-action="Index" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                        <i class="bi bi-arrow-left me-1"></i> Volver
+                    </a>
+                </div>
+
+                <form asp-action="Crear" id="formCrear">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger rounded-3"></div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="TipoInstitucionID" class="control-label">Tipo de Institución</label>
+                        <select asp-for="TipoInstitucionID" class="form-select" asp-items="ViewBag.TipoInstitucionID"></select>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label asp-for="NombreInstitucion" class="control-label"></label>
+                        <input asp-for="NombreInstitucion" class="form-control" placeholder="Ej: Universidad de La Serena" required />
+                        <span asp-validation-for="NombreInstitucion" class="text-danger small"></span>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label asp-for="Carrera" class="control-label"></label>
+                            <input asp-for="Carrera" class="form-control" placeholder="Ej: Ingeniería Civil" required />
+                            <span asp-validation-for="Carrera" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Ciudad" class="control-label"></label>
+                            <input asp-for="Ciudad" class="form-control" placeholder="Ej: Coquimbo" required />
+                            <span asp-validation-for="Ciudad" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6 mb-3 mb-md-0">
+                            <label asp-for="AnhoInicio" class="control-label">Año Inicio</label>
+                            <input asp-for="AnhoInicio" class="form-control" placeholder="Ej: 2020" required />
+                            <span asp-validation-for="AnhoInicio" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="AnhoTermino" class="control-label">Año Término</label>
+                            <input asp-for="AnhoTermino" class="form-control" placeholder="Ej: 2025 o en curso" />
+                            <span asp-validation-for="AnhoTermino" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label asp-for="Descripcion" class="control-label">Logros (Opcional)</label>
+                        <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Menciones honrosas, proyectos destacados..."></textarea>
+                        <span asp-validation-for="Descripcion" class="text-danger small"></span>
+                    </div>
+
+                    <div class="form-group d-grid mt-4">
+                        <input type="hidden" name="submitButton" id="submitButtonHidden" />
+                        <button type="submit" onclick="confirmarCreacion(event)" class="btn btn-success btn-lg fw-bold shadow-sm">
+                            <i class="bi bi-plus-circle me-2"></i> Crear antecedente
+                        </button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label asp-for="NombreInstitucion" class="control-label"></label>
-                <input asp-for="NombreInstitucion" class="form-control" required/>
-                <span asp-validation-for="NombreInstitucion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Ciudad" class="control-label"></label>
-                <input asp-for="Ciudad" class="form-control" required />
-                <span asp-validation-for="Ciudad" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Carrera" class="control-label"></label>
-                <input asp-for="Carrera" class="form-control" required/>
-                <span asp-validation-for="Carrera" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AnhoInicio" class="control-label"></label>
-                <input asp-for="AnhoInicio" class="form-control" required/>
-                <span asp-validation-for="AnhoInicio" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AnhoTermino" class="control-label"></label>
-                <input asp-for="AnhoTermino" class="form-control" />
-                <span asp-validation-for="AnhoTermino" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <textarea textarea type="text" asp-for="Descripcion" class="form-control"></textarea>
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" onclick="confirmarCreacion(event)" value="Crear" class="btn btn-success btn-sm" />
-                <input type="hidden" name="submitButton" id="submitButtonHidden" />
-            </div>
-        </form>
+
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Volver</a>
 </div>
 
 @section Scripts {

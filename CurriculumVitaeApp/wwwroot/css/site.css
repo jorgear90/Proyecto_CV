@@ -262,3 +262,39 @@
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
 }
+
+/* --- ESTILOS PARA FORMULARIOS DE CREACIÓN --- */
+.form-crear-container {
+    background-color: #ffffff;
+    border-radius: 16px;
+    padding: 35px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e9ecef;
+}
+
+.form-crear-container .control-label {
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+}
+
+.form-crear-container .form-control,
+.form-crear-container .form-select {
+    border-radius: 8px;
+    padding: 10px 15px;
+    border: 1px solid #ced4da;
+    background-color: #fcfcfc;
+    transition: all 0.3s ease;
+}
+
+.form-crear-container .form-control:focus,
+.form-crear-container .form-select:focus {
+    background-color: #ffffff;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.form-crear-container textarea.form-control {
+    resize: vertical; /* Permite al usuario agrandar la caja solo hacia abajo */
+}
