@@ -536,8 +536,7 @@ namespace CurriculumVitaeApp.Controllers
 
                 await _context.SaveChangesAsync();
 
-                // ⚠ Aquí NO haces commit todavía.
-                // Primero intentamos generar el PDF
+                // Primero se intenta generar el PDF
                 var pdfBytes = await generarDocumento(curriculumId);
 
                 // Si todo salió bien => commit
@@ -628,30 +627,34 @@ namespace CurriculumVitaeApp.Controllers
             {
                 container.Page(page =>
                 {
-                    page.Size(PageSizes.A4);
-                    page.Margin(80);
+                    page.MarginHorizontal(80);
+                    page.MarginTop(80);
+                    page.MarginBottom(40);
+
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(10));
 
-                    // HEADER
-                    page.Header()
-                        .PaddingBottom(2) 
-                        .Text(text =>
+
+
+                    // CONTENIDO
+                    page.Content().Column(col =>
+                    {
+                        //
+                        // HEADER
+                        //
+                        col.Item().PaddingBottom(0).Text(text =>
                         {
                             text.AlignCenter();
                             text.Line(nombre).Bold().Underline().FontSize(24);
 
                             text.Line("").FontSize(10);
 
-                            if (!string.IsNullOrEmpty(profesion)) {
-
+                            if (!string.IsNullOrEmpty(profesion))
+                            {
                                 text.Line(profesion).Bold().FontSize(18);
                             }
                         });
 
-                    // CONTENIDO
-                    page.Content().Column(col =>
-                    {
                         //
                         // DATOS PERSONALES
                         //
@@ -825,9 +828,14 @@ namespace CurriculumVitaeApp.Controllers
 
                     // FOOTER
                     page.Footer()
-                        .AlignCenter()
+                        .Height(50) // 1. Creamos un espacio fijo exclusivo para el footer
+                        .AlignMiddle() // 2. Centramos el contenido VERTICALMENTE dentro de esos 50 puntos
                         .Row(row =>
                         {
+                            // 3. Espaciador flexible izquierdo (empuja el contenido hacia la derecha)
+                            row.RelativeItem();
+
+                            // Texto principal
                             row.AutoItem().Text(text =>
                             {
                                 text.Span("Generado: ").SemiBold();
@@ -835,16 +843,19 @@ namespace CurriculumVitaeApp.Controllers
                                 text.Span(" - Hecho con: ");
                             });
 
+                            // El enlace (aplicado al contenedor de la fila, solucionando el error)
                             row.AutoItem()
                                 .Hyperlink("https://github.com/jorgear90/Proyecto_CV")
                                 .Text(" Proyecto CV")
                                 .Underline()
                                 .FontColor(Colors.Blue.Medium);
+
+                            // 4. Espaciador flexible derecho (empuja el contenido hacia la izquierda)
+                            row.RelativeItem();
                         });
 
                 });
             })
-
 
             .GeneratePdf(); // genera byte[]
 

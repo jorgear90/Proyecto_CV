@@ -27,8 +27,25 @@ namespace CurriculumVitaeApp.Controllers
         // GET: Links
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Enlaces.Include(l => l.Usuarios);
-            return View(await appDbContext.ToListAsync());
+            var token = Request.Cookies["jwtToken"];
+
+            if (string.IsNullOrEmpty(token))
+            {
+                return RedirectToAction("Login", "Usuarios");
+            }
+
+            // Decodificar el token
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+
+            // Obtener el claim del correo
+            var correo = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Email)?.Value;
+
+            var idUsuario = await _context.Usuarios.Where(u => u.Correo == correo).Select(u => u.Id).FirstOrDefaultAsync();
+
+            var enlaces = _context.Enlaces.Include(d => d.Usuarios).Where(d => d.UsuarioID == idUsuario);
+
+            return View(await enlaces.ToListAsync());
         }
 
         // GET: Links/Create
