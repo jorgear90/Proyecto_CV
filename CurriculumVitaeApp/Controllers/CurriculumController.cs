@@ -744,7 +744,7 @@ namespace CurriculumVitaeApp.Controllers
 
                                     r.RelativeColumn(ColRight).Column(c =>
                                     {
-                                        if(a.Descripcion == " ")
+                                        if(a.Descripcion == null)
                                         {
                                             c.Item().Text($"{a.Carrera} - {tipo} {a.NombreInstitucion} {a.Ciudad}. {a.Descripcion}").SemiBold().FontSize(12);
                                         }
@@ -788,8 +788,13 @@ namespace CurriculumVitaeApp.Controllers
 
                                     r.RelativeColumn(ColRight).Column(c =>
                                     {
-                                        c.Item().Text(l.Empresa).SemiBold().FontSize(12);
-                                        c.Item().Text(l.Descripcion ?? "").FontSize(12);
+                                        c.Item().Text(text =>
+                                        {
+                                            // Texto normal
+                                            text.Span($"{l.Empresa} - {l.Descripcion}")
+                                                .SemiBold()
+                                                .FontSize(12);
+                                        });
                                     });
                                 });
 
