@@ -664,13 +664,13 @@ namespace CurriculumVitaeApp.Controllers
                             if (datos.Any())
                             {
                                 // aplica padding al item (contenedor) ANTES de Text(...)
-                                col.Item().PaddingBottom(paddingBottomTitulos).Text("Datos Personales").SemiBold().FontSize(16);
+                                col.Item().PaddingBottom(paddingBottomTitulos).Text("Datos Personales").FontSize(16).FontFamily("Times New Roman");
 
                                 foreach (var d in datos)
                                 {
                                     col.Item().Row(r =>
                                     {
-                                        r.RelativeColumn(ColLeft).Text($"{d.NombreDato}:").SemiBold().FontSize(12);
+                                        r.RelativeColumn(ColLeft).Text($"{d.NombreDato}:").FontSize(12).FontFamily("Times New Roman");
                                         r.RelativeColumn(ColRight).Text(text =>
                                         {
                                             ApplyLinkStyling(text, d.ValorDato ?? "");
@@ -693,11 +693,12 @@ namespace CurriculumVitaeApp.Controllers
 
                             col.Item().Row(r =>
                             {
-                                r.RelativeColumn(ColLeft).Text("Habilidades:").SemiBold().FontSize(16);
+                                r.RelativeColumn(ColLeft).Text("Habilidades:").FontSize(16).FontFamily("Times New Roman");
 
                                 r.RelativeColumn(ColRight)
                                     .Text(string.Join(" – ", habilidades.Select(h => h.Descripcion)))
                                     .FontSize(12)
+                                    .FontFamily("Times New Roman")
                                     .WrapAnywhere();
                             });
 
@@ -713,11 +714,12 @@ namespace CurriculumVitaeApp.Controllers
 
                             col.Item().Row(r =>
                             {
-                                r.RelativeColumn(ColLeft).Text("Conocimientos:").SemiBold().FontSize(16);
+                                r.RelativeColumn(ColLeft).Text("Conocimientos").FontSize(16).FontFamily("Times New Roman");
 
                                 r.RelativeColumn(ColRight)
                                     .Text(string.Join(" – ", conocimientos.Select(h => h.Descripcion)))
                                     .FontSize(12)
+                                    .FontFamily("Times New Roman")
                                     .WrapAnywhere();
                             });
 
@@ -729,7 +731,7 @@ namespace CurriculumVitaeApp.Controllers
                         //
                         if (academicos.Any())
                         {
-                            col.Item().PaddingBottom(paddingBottomTitulos).Text("Antecedentes Académicos").SemiBold().FontSize(16);
+                            col.Item().PaddingBottom(paddingBottomTitulos).Text("Antecedentes Académicos").FontSize(16).FontFamily("Times New Roman");
 
                             foreach (var a in academicos)
                             {
@@ -740,13 +742,13 @@ namespace CurriculumVitaeApp.Controllers
                                     string termino = a.AnhoTermino?.ToString() ?? "Presente";
 
                                     r.RelativeColumn(ColLeft)
-                                        .Text($"({a.AnhoInicio} - {termino})").FontSize(12);
+                                        .Text($"({a.AnhoInicio} - {termino})").FontSize(12).FontFamily("Times New Roman");
 
                                     r.RelativeColumn(ColRight).Column(c =>
                                     {
                                         if(a.Descripcion == null)
                                         {
-                                            c.Item().Text($"{a.Carrera} - {tipo} {a.NombreInstitucion} {a.Ciudad}. {a.Descripcion}").SemiBold().FontSize(12);
+                                            c.Item().Text($"{a.Carrera} - {tipo} {a.NombreInstitucion} {a.Ciudad}. {a.Descripcion}").FontSize(12).FontFamily("Times New Roman");
                                         }
                                         else
                                         {
@@ -754,8 +756,7 @@ namespace CurriculumVitaeApp.Controllers
                                             {
                                                 // Texto normal
                                                 text.Span($"{a.Carrera} - {tipo} {a.NombreInstitucion} {a.Ciudad} - ")
-                                                    .SemiBold()
-                                                    .FontSize(12);
+                                                    .FontSize(12).FontFamily("Times New Roman");
 
                                                 // Texto con Markdown
                                                 RenderMarkdown(text, a.Descripcion ?? "", 12);
@@ -775,7 +776,7 @@ namespace CurriculumVitaeApp.Controllers
                         //
                         if (laborales.Any())
                         {
-                            col.Item().PaddingBottom(paddingBottomTitulos).Text("Antecedentes Laborales").SemiBold().FontSize(16);
+                            col.Item().PaddingBottom(paddingBottomTitulos).Text("Antecedentes Laborales").FontSize(16).FontFamily("Times New Roman");
 
                             foreach (var l in laborales)
                             {
@@ -784,7 +785,7 @@ namespace CurriculumVitaeApp.Controllers
                                     string fin = l.FechaTermino?.ToString("dd/MM/yyyy") ?? "Presente";
                                     string inicio = l.FechaInicio.ToString("dd/MM/yyyy");
 
-                                    r.RelativeColumn(ColLeft).Text($"({inicio} - {fin})").FontSize(12);
+                                    r.RelativeColumn(ColLeft).Text($"({inicio} - {fin})").FontSize(12).FontFamily("Times New Roman");
 
                                     r.RelativeColumn(ColRight).Column(c =>
                                     {
@@ -792,8 +793,7 @@ namespace CurriculumVitaeApp.Controllers
                                         {
                                             // Texto normal
                                             text.Span($"{l.Empresa} - {l.Descripcion}")
-                                                .SemiBold()
-                                                .FontSize(12);
+                                                .FontSize(12).FontFamily("Times New Roman");
                                         });
                                     });
                                 });
@@ -810,13 +810,13 @@ namespace CurriculumVitaeApp.Controllers
                             if (enlaces.Any())
                             {
                                 // aplica padding al item (contenedor) ANTES de Text(...)
-                                col.Item().PaddingBottom(paddingBottomTitulos).Text("Enlaces").SemiBold().FontSize(16);
+                                col.Item().PaddingBottom(paddingBottomTitulos).Text("Enlaces").FontSize(16).FontFamily("Times New Roman");
 
                                 foreach (var r in enlaces)
                                 {
                                     col.Item().Row(e =>
                                     {
-                                        e.RelativeColumn(ColLeft).Text($"{r.Titulo}:").SemiBold().FontSize(12);
+                                        e.RelativeColumn(ColLeft).Text($"{r.Titulo}:").FontSize(12).FontFamily("Times New Roman");
                                         e.RelativeColumn(ColRight).Text(text =>
                                         {
                                             ApplyLinkStyling(text, r.Enlace ?? "");
@@ -843,7 +843,7 @@ namespace CurriculumVitaeApp.Controllers
                             // Texto principal
                             row.AutoItem().Text(text =>
                             {
-                                text.Span("Generado: ").SemiBold();
+                                text.Span("Generado: ");
                                 text.Span(DateTime.Now.ToString("dd/MM/yyyy HH:mm"));
                                 text.Span(" - Hecho con: ");
                             });
@@ -904,21 +904,22 @@ namespace CurriculumVitaeApp.Controllers
 
         }
 
-        // Método auxiliar para aplicar estilos a enlaces en DatosBasicos
+        // Método auxiliar para aplicar estilos a enlaces y correos electrónicos
         private void ApplyLinkStyling(TextDescriptor text, string input)
         {
             if (string.IsNullOrEmpty(input))
             {
-                text.Span(input).FontSize(12); // Aplica tamaño aquí
+                text.Span(input).FontSize(12);
                 return;
             }
 
-            var urlPattern = @"(https?://[^\s]+|www\.[^\s]+)";
+            // REGEX ACTUALIZADO: Busca http, www, Y correos electrónicos
+            var urlPattern = @"(https?://[^\s]+|www\.[^\s]+|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})";
             var matches = Regex.Matches(input, urlPattern);
 
             if (matches.Count == 0)
             {
-                text.Span(input).FontSize(12); 
+                text.Span(input).FontSize(12);
                 return;
             }
 
@@ -929,13 +930,26 @@ namespace CurriculumVitaeApp.Controllers
                 if (match.Index > lastIndex)
                 {
                     text.Span(input.Substring(lastIndex, match.Index - lastIndex))
-                        .FontSize(12); 
+                        .FontSize(12);
                 }
 
-                string url = match.Value;
-                string fullUrl = url.StartsWith("http") ? url : $"https://{url}";
+                string valorEncontrado = match.Value;
+                string urlDestino = valorEncontrado;
 
-                text.Hyperlink(match.Value, match.Value)
+                // LÓGICA DE DETECCIÓN: ¿Es correo o es página web?
+                if (valorEncontrado.Contains("@") && !valorEncontrado.StartsWith("http") && !valorEncontrado.StartsWith("www"))
+                {
+                    // Si es un correo, necesita mailto: para que al hacer clic abra el gestor de correos
+                    urlDestino = $"mailto:{valorEncontrado}";
+                }
+                else if (!valorEncontrado.StartsWith("http"))
+                {
+                    // Si es www.algo.com, le agregamos https://
+                    urlDestino = $"https://{valorEncontrado}";
+                }
+
+                // Aplicamos el hyperlink con el destino correcto
+                text.Hyperlink(valorEncontrado, urlDestino)
                     .FontColor(Colors.Blue.Medium)
                     .Underline()
                     .FontSize(12);
