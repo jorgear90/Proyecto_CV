@@ -235,7 +235,7 @@ namespace CurriculumVitaeApp.Controllers
             if (idCv != 0)
             {
                 idsSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 1)
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == tipoDatoId)
                     .OrderBy(cs => cs.Orden)
                     .Select(cs => cs.TipoDatoID)
                     .ToHashSetAsync();
@@ -246,7 +246,7 @@ namespace CurriculumVitaeApp.Controllers
             if (idCv != 0)
             {
                 ordenSeleccionados = await _context.CurriculumSeleccion
-                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == 1)
+                    .Where(cs => cs.CurriculumID == idCv && cs.TipoDatoCurriculumID == tipoDatoId)
                     .ToDictionaryAsync(cs => cs.TipoDatoID, cs => cs.Orden);
             }
 
@@ -664,7 +664,7 @@ namespace CurriculumVitaeApp.Controllers
                             if (datos.Any())
                             {
                                 // aplica padding al item (contenedor) ANTES de Text(...)
-                                col.Item().PaddingBottom(paddingBottomTitulos).Text("Datos Personales").SemiBold().FontSize(18);
+                                col.Item().PaddingBottom(paddingBottomTitulos).Text("Datos Personales").SemiBold().FontSize(16);
 
                                 foreach (var d in datos)
                                 {
@@ -693,7 +693,7 @@ namespace CurriculumVitaeApp.Controllers
 
                             col.Item().Row(r =>
                             {
-                                r.RelativeColumn(ColLeft).Text("Habilidades:").SemiBold().FontSize(18);
+                                r.RelativeColumn(ColLeft).Text("Habilidades:").SemiBold().FontSize(16);
 
                                 r.RelativeColumn(ColRight)
                                     .Text(string.Join(" – ", habilidades.Select(h => h.Descripcion)))
@@ -713,7 +713,7 @@ namespace CurriculumVitaeApp.Controllers
 
                             col.Item().Row(r =>
                             {
-                                r.RelativeColumn(ColLeft).Text("Conocimientos:").SemiBold().FontSize(18);
+                                r.RelativeColumn(ColLeft).Text("Conocimientos:").SemiBold().FontSize(16);
 
                                 r.RelativeColumn(ColRight)
                                     .Text(string.Join(" – ", conocimientos.Select(h => h.Descripcion)))
@@ -729,7 +729,7 @@ namespace CurriculumVitaeApp.Controllers
                         //
                         if (academicos.Any())
                         {
-                            col.Item().PaddingBottom(paddingBottomTitulos).Text("Antecedentes Académicos").SemiBold().FontSize(18);
+                            col.Item().PaddingBottom(paddingBottomTitulos).Text("Antecedentes Académicos").SemiBold().FontSize(16);
 
                             foreach (var a in academicos)
                             {
@@ -775,7 +775,7 @@ namespace CurriculumVitaeApp.Controllers
                         //
                         if (laborales.Any())
                         {
-                            col.Item().PaddingBottom(paddingBottomTitulos).Text("Antecedentes Laborales").SemiBold().FontSize(18);
+                            col.Item().PaddingBottom(paddingBottomTitulos).Text("Antecedentes Laborales").SemiBold().FontSize(16);
 
                             foreach (var l in laborales)
                             {
@@ -810,7 +810,7 @@ namespace CurriculumVitaeApp.Controllers
                             if (enlaces.Any())
                             {
                                 // aplica padding al item (contenedor) ANTES de Text(...)
-                                col.Item().PaddingBottom(paddingBottomTitulos).Text("Enlaces").SemiBold().FontSize(18);
+                                col.Item().PaddingBottom(paddingBottomTitulos).Text("Enlaces").SemiBold().FontSize(16);
 
                                 foreach (var r in enlaces)
                                 {
@@ -862,7 +862,7 @@ namespace CurriculumVitaeApp.Controllers
                 });
             })
 
-            .GeneratePdf(); // genera byte[]
+            .GeneratePdf();
 
             return bytes;
         }
