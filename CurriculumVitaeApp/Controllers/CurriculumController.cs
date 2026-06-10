@@ -617,7 +617,7 @@ namespace CurriculumVitaeApp.Controllers
 
             var profesion = cv.Profesion;
             var nombre = cv.Encabezado;
-            int paddingBottomSecciones = 20;
+            int paddingBottomSecciones = 15;
             int paddingBottomTitulos = 13;
 
             const float ColLeft = 1;
@@ -627,17 +627,18 @@ namespace CurriculumVitaeApp.Controllers
             {
                 container.Page(page =>
                 {
-                    page.MarginHorizontal(80);
-                    page.MarginTop(80);
-                    page.MarginBottom(40);
+                    page.MarginHorizontal(2.54f, Unit.Centimetre);
+                    page.MarginTop(2.54f, Unit.Centimetre);
+                    page.MarginBottom(0.5f, Unit.Centimetre);
 
                     page.PageColor(Colors.White);
                     page.DefaultTextStyle(x => x.FontSize(10));
+                    page.Size(PageSizes.Letter);
 
 
 
                     // CONTENIDO
-                    page.Content().Column(col =>
+                    page.Content().PaddingBottom(1.0f, Unit.Centimetre).Column(col =>
                     {
                         //
                         // HEADER
