@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\cv-usuarios\1\" />
     <Folder Include="wwwroot\cv\" />
   </ItemGroup>
 

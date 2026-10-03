@@ -283,52 +283,22 @@ namespace CurriculumVitaeApp.Controllers
         [HttpGet]
         public async Task<IActionResult> DescargarCv(string idDescargar)
         {
-            // id = idCv
             var idUsuario = await getIdUsuario();
-
             int realId;
 
-            try
-            {
-                realId = _idProtector.DecryptId(idDescargar);
-            }
-            catch
-            {
-                return BadRequest("ID inválido");
-            }
+            try { realId = _idProtector.DecryptId(idDescargar); }
+            catch { return BadRequest("ID inválido"); }
 
-            if (idUsuario == 0)
-                return RedirectToAction("Login", "Usuarios");
+            if (idUsuario == 0) return RedirectToAction("Login", "Usuarios");
 
-            // Ruta física a wwwroot
-            var webRoot = _env.WebRootPath;
+            var cv = await _context.Curriculum.FirstOrDefaultAsync(c => c.Id == realId && c.UsuarioID == idUsuario);
+            if (cv == null) return NotFound("El curriculum solicitado no existe.");
 
-            // wwwroot/cv-usuarios/{idUsuario}/{idCv}.pdf
-            var rutaArchivo = Path.Combine(
-                webRoot,
-                "cv-usuarios",
-                idUsuario.ToString(),
-                $"{realId}.pdf"
-            );
-
-            // Verificar que el archivo exista
-            if (!System.IO.File.Exists(rutaArchivo))
-            {
-                return NotFound("El curriculum solicitado no existe.");
-            }
-
-            //Obtener nombre del archivo
-            var nombrePdf = await _context.Curriculum.Where(c => c.Id == realId).Select(c => c.Nombre).FirstOrDefaultAsync();
-
-            // Leer bytes
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(rutaArchivo);
+            // Generar PDF
+            var fileBytes = await generarDocumento(realId);
 
             // Descargar archivo
-            return File(
-                fileBytes,
-                "application/pdf",
-                $"{nombrePdf}.pdf"
-            );
+            return File(fileBytes, "application/pdf", $"{cv.Nombre}.pdf");
         }
 
         //Método que permite eliminar un cv
@@ -357,28 +327,7 @@ namespace CurriculumVitaeApp.Controllers
             if (curriculum == null)
                 return NotFound();
 
-            // 👉 Eliminar archivo físico
-            var rutaArchivo = Path.Combine(
-                _env.WebRootPath,
-                "cv-usuarios",
-                idUsuario.ToString(),
-                $"{realId}.pdf"
-            );
-
-            if (System.IO.File.Exists(rutaArchivo))
-            {
-                System.IO.File.Delete(rutaArchivo);
-            }
-
-            var carpetaUsuario = Path.GetDirectoryName(rutaArchivo);
-
-            if (Directory.Exists(carpetaUsuario) &&
-                !Directory.EnumerateFileSystemEntries(carpetaUsuario).Any())
-            {
-                Directory.Delete(carpetaUsuario);
-            }
-
-            // 👉 Eliminar registro BD
+            // Eliminar registro BD
             _context.Curriculum.Remove(curriculum);
             await _context.SaveChangesAsync();
 
@@ -386,6 +335,7 @@ namespace CurriculumVitaeApp.Controllers
         }
 
         //Este método muestra una vista previa del cv
+        // Este método muestra una vista previa del cv generado al vuelo
         [HttpGet]
         public async Task<IActionResult> VistaPreviaCv(string id)
         {
@@ -411,21 +361,18 @@ namespace CurriculumVitaeApp.Controllers
             if (!existe)
                 return Forbid();
 
-            // Ruta física del PDF
-            var rutaArchivo = Path.Combine(
-                _env.WebRootPath,
-                "cv-usuarios",
-                idUsuario.ToString(),
-                $"{realId}.pdf"
-            );
+            try
+            {
+                // Generamos el PDF al vuelo desde la base de datos
+                var fileBytes = await generarDocumento(realId);
 
-            if (!System.IO.File.Exists(rutaArchivo))
-                return NotFound("El archivo no existe.");
-
-            var fileBytes = await System.IO.File.ReadAllBytesAsync(rutaArchivo);
-
-            // Vista previa (inline)
-            return File(fileBytes, "application/pdf");
+                // Vista previa (inline)
+                return File(fileBytes, "application/pdf");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest("Error al generar la vista previa del CV: " + ex.Message);
+            }
         }
 
         //GENERACIÓN DE PDF: métodos que permiten el guardado y creación de un cv
@@ -464,26 +411,6 @@ namespace CurriculumVitaeApp.Controllers
 
                 curriculumId = cv.Id;
 
-                // Eliminar archivo físico
-                var rutaArchivo = Path.Combine(
-                    _env.WebRootPath,
-                    "cv-usuarios",
-                    idUsuario.ToString(),
-                    $"{cv.Id}.pdf"
-                );
-
-                if (System.IO.File.Exists(rutaArchivo))
-                {
-                    System.IO.File.Delete(rutaArchivo);
-                }
-
-                var carpetaUsuario = Path.GetDirectoryName(rutaArchivo);
-
-                if (Directory.Exists(carpetaUsuario) &&
-                    !Directory.EnumerateFileSystemEntries(carpetaUsuario).Any())
-                {
-                    Directory.Delete(carpetaUsuario);
-                }
             }
             else if (cantidadCv >= 5)
             {
@@ -541,8 +468,6 @@ namespace CurriculumVitaeApp.Controllers
 
                 // Si todo salió bien => commit
                 await tx.CommitAsync();
-
-                AlmacenarCv(curriculumId, idUsuario, pdfBytes);
 
                 var nombrePdf = await _context.Curriculum.Where(c => c.Id == curriculumId).Select(c => c.Nombre).FirstOrDefaultAsync();
 
@@ -694,7 +619,7 @@ namespace CurriculumVitaeApp.Controllers
 
                             col.Item().Row(r =>
                             {
-                                r.RelativeColumn(ColLeft).Text("Habilidades:").FontSize(16).FontFamily("Times New Roman");
+                                r.RelativeColumn(ColLeft).Text("Habilidades").FontSize(16).FontFamily("Times New Roman");
 
                                 r.RelativeColumn(ColRight)
                                     .Text(string.Join(" – ", habilidades.Select(h => h.Descripcion)))
@@ -743,7 +668,7 @@ namespace CurriculumVitaeApp.Controllers
                                     string termino = a.AnhoTermino?.ToString() ?? "Presente";
 
                                     r.RelativeColumn(ColLeft)
-                                        .Text($"({a.AnhoInicio} - {termino})").FontSize(12).FontFamily("Times New Roman");
+                                        .Text($"{a.AnhoInicio} - {termino}").FontSize(12).FontFamily("Times New Roman");
 
                                     r.RelativeColumn(ColRight).Column(c =>
                                     {
@@ -786,7 +711,7 @@ namespace CurriculumVitaeApp.Controllers
                                     string fin = l.FechaTermino?.ToString("dd/MM/yyyy") ?? "Presente";
                                     string inicio = l.FechaInicio.ToString("dd/MM/yyyy");
 
-                                    r.RelativeColumn(ColLeft).Text($"({inicio} - {fin})").FontSize(12).FontFamily("Times New Roman");
+                                    r.RelativeColumn(ColLeft).Text($"{inicio} - {fin}").FontSize(12).FontFamily("Times New Roman");
 
                                     r.RelativeColumn(ColRight).Column(c =>
                                     {
@@ -880,29 +805,6 @@ namespace CurriculumVitaeApp.Controllers
                 else
                     text.Span(part).FontSize(fontSize);
             }
-        }
-
-        //Método que almacena los cvs en el disco de la aplicación
-        public async Task AlmacenarCv(int curriculumId, int idUsuario, byte[] pdfBytes)
-        {
-            // Ruta base: wwwroot
-            var webRoot = _env.WebRootPath;
-
-            // wwwroot/cv-usuarios/{idUsuario}
-            var carpetaUsuario = Path.Combine(webRoot, "cv-usuarios", idUsuario.ToString());
-
-            // Crear carpeta si no existe
-            if (!Directory.Exists(carpetaUsuario))
-            {
-                Directory.CreateDirectory(carpetaUsuario);
-            }
-
-            // Nombre del archivo: {curriculumId}.pdf
-            var rutaArchivo = Path.Combine(carpetaUsuario, $"{curriculumId}.pdf");
-
-            // Guardar el archivo
-            await System.IO.File.WriteAllBytesAsync(rutaArchivo, pdfBytes);
-
         }
 
         // Método auxiliar para aplicar estilos a enlaces y correos electrónicos
