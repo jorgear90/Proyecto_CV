@@ -272,7 +272,8 @@ namespace CurriculumVitaeApp.Controllers
 
             var curriculums = await _context.Curriculum
                 .Where(c => c.UsuarioID == idUsuario)
-                .OrderBy(c => c.Fecha)
+                .OrderByDescending(c => c.Fecha)
+                .ThenBy(c => c.Nombre)
                 .ToListAsync();
 
             return View(curriculums);
